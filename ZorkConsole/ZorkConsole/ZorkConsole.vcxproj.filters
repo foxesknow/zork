@@ -45,6 +45,9 @@
     <ClInclude Include="..\..\ZorkLib\Include\Zork\Story.h">
       <Filter>ZorkLib\Include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\ZorkLib\Include\Zork\StringReader.h">
+      <Filter>ZorkLib\Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

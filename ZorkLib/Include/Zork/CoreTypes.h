@@ -30,4 +30,11 @@ public:
 	}
 };
 
+inline Address increaseWordAddress(Address address, int amount)
+{
+	auto offset=sizeof(Word)*amount;
+	return static_cast<Address>(address+offset);
+}
+
+
 } // End of namespace

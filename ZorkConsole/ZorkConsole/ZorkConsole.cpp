@@ -3,6 +3,8 @@
 
 #include "stdafx.h"
 
+#include <iostream>
+
 #include <Zork\CoreTypes.h>
 #include <Zork\AddressSpace.h>
 #include <Zork\Story.h>
@@ -15,6 +17,9 @@ int main()
 
 	zork::Story story(std::move(addressSpace));
 	story.buildAbbreviationCache();
+
+	auto s=story.readString(0xb106);
+	std::cout << s << std::endl;
 
 	return 0;
 }

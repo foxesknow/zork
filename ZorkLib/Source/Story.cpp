@@ -35,9 +35,25 @@ Story::Story(AddressSpace &&addressSpace) : m_AddressSpace(std::move(addressSpac
 	m_AbbereviationTableBase=m_AddressSpace.ReadWord(0x18);
 }
 
+std::string Story::readString(Address normalizedAddress)const
+{
+	std::string value;
+
+	auto alphabetTable=alphabetTable_A0;
+
+	StringReader reader(&m_AddressSpace,normalizedAddress);
+
+	do
+	{
+		resolveCharacter(value,alphabetTable,reader);
+	}while(reader.moveNext());
+
+	return value;
+}
+
 void Story::buildAbbreviationCache()
 {
-	for(Word i=0; i<96; i++)
+	for(int i=0; i<96; i++)
 	{
 		auto value=readAbbreviation(i);
 		m_Abbreviations[i]=value;
@@ -49,44 +65,45 @@ std::string Story::readAbbreviation(int addreviationNumber)const
 	auto abbreviationAddress=increaseWordAddress(m_AbbereviationTableBase,addreviationNumber);
 	auto stringPointer=resolveWordAddress(m_AddressSpace.ReadWord(abbreviationAddress));
 
-	std::string value;
-
-	auto alphabetTable=alphabetTable_A0;
-
-	while(true)
-	{
-		auto word=m_AddressSpace.ReadWord(stringPointer);
-
-		auto c3=word & 0x1f;
-		word >>= 5;
-
-		auto c2=word & 0x1f;
-		word >>= 5;
-
-		auto c1=word & 0x1f;
-		word >>= 5;
-		
-		auto atEnd=word & 1;
-
-		resolveCharacter(value,alphabetTable,c1);
-		resolveCharacter(value,alphabetTable,c2);
-		resolveCharacter(value,alphabetTable,c3);		
-		
-		if(atEnd) break;
-
-		stringPointer=increaseWordAddress(stringPointer,1);
-	}
-
-	return value;
+	return readString(stringPointer);
 }
 
-void Story::resolveCharacter(std::string &text, const char *&alphabet, int character)const
+const std::string &Story::getAbbreviation(int id)const
 {
+	auto it=m_Abbreviations.find(id);
+	if(it==m_Abbreviations.end()) 
+	{
+		throw Exception("could not find abbreviation");
+	}
+
+	return it->second;
+}
+
+void Story::resolveCharacter(std::string &text, const char *&alphabet, StringReader &reader)const
+{
+	int character=reader.getCurrent();
+
 	if(character>5)
 	{
-		// It's not a shift character
-		char c=alphabet[character];
-		if(c) text+=c;
+		if(character==6 && alphabet==alphabetTable_A2)
+		{
+			reader.moveNext();
+			auto high=reader.getCurrent();
+
+			reader.moveNext();
+			auto low=reader.getCurrent();
+
+			auto zsciiCode=(high<<5)+low;
+			char c=static_cast<char>(zsciiCode);
+			if(c) text+=c;
+		}
+		else
+		{
+			// It's not a shift character
+			char c=alphabet[character];
+			if(c) text+=c;
+		}
+
 		alphabet=alphabetTable_A0;
 	}
 	else
@@ -99,13 +116,18 @@ void Story::resolveCharacter(std::string &text, const char *&alphabet, int chara
 				break;
 
 			case 1:
-				break;
-
 			case 2:
-				break;
-
 			case 3:
+			{
+				reader.moveNext();
+				
+				int bank=character;
+				int offset=reader.getCurrent();
+				int index=(32*(bank-1))+offset;
+				text+=getAbbreviation(index);
+
 				break;
+			}				
 
 			case 4:
 				alphabet=alphabetTable_A1;
