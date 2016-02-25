@@ -9,10 +9,10 @@ namespace zork
 class AddressSpace
 {
 private:
-	byte_t *m_Memory;
+	Byte *m_Memory;
 	size_t m_Size;
 
-	void CheckIsValid(address_t address)const
+	void CheckIsValid(Address address)const
 	{
 		if(address>=m_Size)
 		{
@@ -23,7 +23,7 @@ private:
 public:
 	explicit AddressSpace(size_t size) : m_Size(size)
 	{
-		m_Memory=new byte_t[size];
+		m_Memory=new Byte[size];
 	}
 
 	AddressSpace(AddressSpace &&rhs)
@@ -40,12 +40,12 @@ public:
 		delete []m_Memory;
 	}
 
-	byte_t *base()
+	Byte *base()
 	{
 		return m_Memory;
 	}
 
-	const byte_t *base()const
+	const Byte *base()const
 	{
 		return m_Memory;
 	}
@@ -55,14 +55,14 @@ public:
 		return m_Size;
 	}
 
-	byte_t ReadByte(address_t address)const
+	Byte ReadByte(Address address)const
 	{
 		CheckIsValid(address);
 
 		return m_Memory[address];
 	}
 
-	word_t ReadWord(address_t address)const
+	Word ReadWord(Address address)const
 	{
 		CheckIsValid(address);
 
@@ -70,7 +70,7 @@ public:
 		auto low=m_Memory[address+1];
 		auto value=(high*256)+low;
 
-		return static_cast<word_t>(value);
+		return static_cast<Word>(value);
 	}
 
 

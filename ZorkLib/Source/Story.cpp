@@ -37,7 +37,7 @@ Story::Story(AddressSpace &&addressSpace) : m_AddressSpace(std::move(addressSpac
 
 void Story::buildAbbreviationCache()
 {
-	for(word_t i=0; i<96; i++)
+	for(Word i=0; i<96; i++)
 	{
 		auto value=readAbbreviation(i);
 		m_Abbreviations[i]=value;

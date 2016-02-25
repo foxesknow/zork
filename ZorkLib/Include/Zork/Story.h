@@ -12,26 +12,26 @@ class Story
 private:
 	AddressSpace m_AddressSpace;
 	
-	address_t m_StaticBase;
-	address_t m_AbbereviationTableBase;
+	Address m_StaticBase;
+	Address m_AbbereviationTableBase;
 
-	std::map<word_t,std::string> m_Abbreviations;
+	std::map<Word,std::string> m_Abbreviations;
 
 
 private:
-	address_t increaseByteAddress(address_t address, int amount)const
+	Address increaseByteAddress(Address address, int amount)const
 	{
-		auto offset=sizeof(byte_t)*amount;
-		return static_cast<address_t>(address+offset);
+		auto offset=sizeof(Byte)*amount;
+		return static_cast<Address>(address+offset);
 	}
 
-	address_t increaseWordAddress(address_t address, int amount)const
+	Address increaseWordAddress(Address address, int amount)const
 	{
-		auto offset=sizeof(word_t)*amount;
-		return static_cast<address_t>(address+offset);
+		auto offset=sizeof(Word)*amount;
+		return static_cast<Address>(address+offset);
 	}
 
-	address_t resolveWordAddress(address_t address)const
+	Address resolveWordAddress(Address address)const
 	{
 		return address*2;
 	}
