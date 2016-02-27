@@ -19,7 +19,7 @@ private:
 private:
 	void update(Address address)
 	{
-		auto word=m_AddressSpace->ReadWord(address);
+		auto word=m_AddressSpace->readWord(address);
 
 		m_Chars[2]=word & 0x1f;
 		word >>= 5;
@@ -33,6 +33,7 @@ private:
 		m_AtEnd=word & 1;
 		m_Index=0;
 	}
+
 
 public:
 	StringReader(const AddressSpace *addressSpace, Address normalizedAddress) : m_AddressSpace(addressSpace), m_Address(normalizedAddress)

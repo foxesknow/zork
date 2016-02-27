@@ -16,7 +16,6 @@ int main()
 	zork::AddressSpace addressSpace=zork::loadAddressSpaceFromFile(filename);
 
 	zork::Story story(std::move(addressSpace));
-	story.buildAbbreviationCache();
 
 	auto s=story.readString(0xb106);
 	std::cout << s << std::endl;

@@ -10,6 +10,10 @@ typedef uint8_t Byte;
 typedef uint16_t Word;
 typedef uint32_t Address;
 
+// There time when we might need to generate a zscii null
+// This is an end of string marker (the first one) followed by 3 5s
+const Word ZsciiNull=0b1001010010100101;
+
 class Exception
 {
 private:

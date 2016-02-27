@@ -15,12 +15,17 @@ private:
 	
 	Address m_StaticBase;
 	Address m_AbbereviationTableBase;
+	Address m_DictionaryLocation;
 
 	std::map<int,std::string> m_Abbreviations;
 
 
 private:
+	void buildAbbreviationCache();
 	const std::string &getAbbreviation(int id)const;
+	std::string readAbbreviation(int addreviationNumber)const;
+
+	void buildDictionary();
 
 	Address increaseByteAddress(Address address, int amount)const
 	{
@@ -34,16 +39,15 @@ private:
 	}
 
 	void resolveCharacter(std::string &text, const char *&alphabet, StringReader &reader)const;
-	
-	std::string readAbbreviation(int addreviationNumber)const;
 
 public:
 	Story(AddressSpace &&addressSpace);
 
 	// For now...
-	void buildAbbreviationCache();
+	
 
 	std::string readString(Address address)const;
+	std::string readString(StringReader &reader)const;
 	
 };
 

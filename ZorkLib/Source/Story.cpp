@@ -2,53 +2,19 @@
 
 #include <Zork\Story.h>
 
-namespace
-{
-
-const char alphabetTable_A0[]=
-{
-	'_', '?', '?', '?', '?', '?', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-	'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' 
-};
-
-const char alphabetTable_A1[]=
-{
-	'_', '?', '?', '?', '?', '?', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-	'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' 
-};
-
-const char alphabetTable_A2[]=
-{
-	'_', '?', '?', '?', '?', '?', '\0', '\n', '0', '1', '2', '3', '4', '5', '6', '7',
-	'8', '9', '.', ',', '!', '?', '_', '#', '`', '"', '/', '\\', '-', ':', '(', ')' 
-};
-
-} // end of namespace
+#include<iostream>
 
 namespace zork
 {
 
 Story::Story(AddressSpace &&addressSpace) : m_AddressSpace(std::move(addressSpace))
 {
-	m_StaticBase=m_AddressSpace.ReadWord(0x0e);
+	m_StaticBase=m_AddressSpace.readWord(0x0e);
+	m_AbbereviationTableBase=m_AddressSpace.readWord(0x18);
+	m_DictionaryLocation=m_AddressSpace.readWord(0x08);
 
-	m_AbbereviationTableBase=m_AddressSpace.ReadWord(0x18);
-}
-
-std::string Story::readString(Address normalizedAddress)const
-{
-	std::string value;
-
-	auto alphabetTable=alphabetTable_A0;
-
-	StringReader reader(&m_AddressSpace,normalizedAddress);
-
-	do
-	{
-		resolveCharacter(value,alphabetTable,reader);
-	}while(reader.moveNext());
-
-	return value;
+	buildAbbreviationCache();
+	buildDictionary();
 }
 
 void Story::buildAbbreviationCache()
@@ -63,7 +29,7 @@ void Story::buildAbbreviationCache()
 std::string Story::readAbbreviation(int addreviationNumber)const
 {
 	auto abbreviationAddress=increaseWordAddress(m_AbbereviationTableBase,addreviationNumber);
-	auto stringPointer=resolveWordAddress(m_AddressSpace.ReadWord(abbreviationAddress));
+	auto stringPointer=resolveWordAddress(m_AddressSpace.readWord(abbreviationAddress));
 
 	return readString(stringPointer);
 }
@@ -79,68 +45,34 @@ const std::string &Story::getAbbreviation(int id)const
 	return it->second;
 }
 
-void Story::resolveCharacter(std::string &text, const char *&alphabet, StringReader &reader)const
+
+void Story::buildDictionary()
 {
-	int character=reader.getCurrent();
+	Byte numberOfBytes=m_AddressSpace.readByte(m_DictionaryLocation);
 
-	if(character>5)
+	auto address=m_DictionaryLocation+1;
+	
+	std::string wordSeparators;
+	for(Byte i=0; i<numberOfBytes; i++, address++)
 	{
-		if(character==6 && alphabet==alphabetTable_A2)
-		{
-			reader.moveNext();
-			auto high=reader.getCurrent();
-
-			reader.moveNext();
-			auto low=reader.getCurrent();
-
-			auto zsciiCode=(high<<5)+low;
-			char c=static_cast<char>(zsciiCode);
-			if(c) text+=c;
-		}
-		else
-		{
-			// It's not a shift character
-			char c=alphabet[character];
-			if(c) text+=c;
-		}
-
-		alphabet=alphabetTable_A0;
+		auto zscii=m_AddressSpace.readByte(address);
+		wordSeparators+=static_cast<char>(zscii);
 	}
-	else
+
+	// address now points to the "entry length" field
+	auto entryLength=m_AddressSpace.readByte(address++);
+	auto numberOfEntries=m_AddressSpace.readWord(address);
+
+	auto entryAddress=increaseWordAddress(address,1);
+
+	for(Word i=0; i<numberOfEntries; i++, entryAddress+=entryLength)
 	{
-		// It's a shift
-		switch(character)
-		{
-			case 0:
-				text+=' ';
-				break;
+		StringReader reader(&m_AddressSpace,entryAddress);
+		auto text=readString(reader);
 
-			case 1:
-			case 2:
-			case 3:
-			{
-				reader.moveNext();
-				
-				int bank=character;
-				int offset=reader.getCurrent();
-				int index=(32*(bank-1))+offset;
-				text+=getAbbreviation(index);
-
-				break;
-			}				
-
-			case 4:
-				alphabet=alphabetTable_A1;
-				break;
-
-			case 5:
-				alphabet=alphabetTable_A2;
-				break;
-
-			default:
-				break;
-		}
+		std::cout << text << std::endl;
 	}
 }
+
 
 } // end of namespace

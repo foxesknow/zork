@@ -12,7 +12,7 @@ private:
 	Byte *m_Memory;
 	size_t m_Size;
 
-	void CheckIsValid(Address address)const
+	void checkIsValid(Address address)const
 	{
 		if(address>=m_Size)
 		{
@@ -55,16 +55,22 @@ public:
 		return m_Size;
 	}
 
-	Byte ReadByte(Address address)const
+	const Byte *pointerTo(Address address)const
 	{
-		CheckIsValid(address);
+		checkIsValid(address);
+		return m_Memory+address;
+	}
+
+	Byte readByte(Address address)const
+	{
+		checkIsValid(address);
 
 		return m_Memory[address];
 	}
 
-	Word ReadWord(Address address)const
+	Word readWord(Address address)const
 	{
-		CheckIsValid(address);
+		checkIsValid(address);
 
 		auto high=m_Memory[address];
 		auto low=m_Memory[address+1];
