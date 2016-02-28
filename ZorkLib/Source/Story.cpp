@@ -2,19 +2,19 @@
 
 #include <Zork\Story.h>
 
-#include<iostream>
-
 namespace zork
 {
 
 Story::Story(AddressSpace &&addressSpace) : m_AddressSpace(std::move(addressSpace))
 {
+	// NOTE: header layout on page 61
+
+	m_Version=m_AddressSpace.readByte(0);
 	m_StaticBase=m_AddressSpace.readWord(0x0e);
-	m_AbbereviationTableBase=m_AddressSpace.readWord(0x18);
-	m_DictionaryLocation=m_AddressSpace.readWord(0x08);
 
 	buildAbbreviationCache();
 	buildDictionary();
+	parseObjectTable();
 }
 
 void Story::buildAbbreviationCache()
@@ -28,7 +28,9 @@ void Story::buildAbbreviationCache()
 
 std::string Story::readAbbreviation(int addreviationNumber)const
 {
-	auto abbreviationAddress=increaseWordAddress(m_AbbereviationTableBase,addreviationNumber);
+	auto abbereviationTableBase=m_AddressSpace.readWord(0x18);
+
+	auto abbreviationAddress=increaseWordAddress(abbereviationTableBase,addreviationNumber);
 	auto stringPointer=resolveWordAddress(m_AddressSpace.readWord(abbreviationAddress));
 
 	return readString(stringPointer);
@@ -48,9 +50,10 @@ const std::string &Story::getAbbreviation(int id)const
 
 void Story::buildDictionary()
 {
-	Byte numberOfBytes=m_AddressSpace.readByte(m_DictionaryLocation);
+	auto dictionaryLocation=m_AddressSpace.readWord(0x08);
+	Byte numberOfBytes=m_AddressSpace.readByte(dictionaryLocation);
 
-	auto address=m_DictionaryLocation+1;
+	auto address=dictionaryLocation+1;
 	
 	std::string wordSeparators;
 	for(Byte i=0; i<numberOfBytes; i++, address++)
@@ -69,9 +72,26 @@ void Story::buildDictionary()
 	{
 		StringReader reader(&m_AddressSpace,entryAddress);
 		auto text=readString(reader);
-
-		std::cout << text << std::endl;
+		m_Dictionary.insert(text);
 	}
+}
+
+void Story::parseObjectTable()
+{
+	auto objectTableAddress=m_AddressSpace.readWord(0x0a);
+
+	// First, read the defaults
+	int numberOfDefaults=(m_Version>3 ? 63 : 31);
+	for(int i=0; i<numberOfDefaults; i++)
+	{
+		auto address=increaseWordAddress(objectTableAddress,i);
+		auto value=m_AddressSpace.readWord(address);
+		m_PropertyDefaults.push_back(value);
+	}
+
+	// See page 65 of spec
+	auto objectTreeAddress=increaseWordAddress(objectTableAddress,numberOfDefaults);
+	auto raw=m_AddressSpace.pointerTo(objectTreeAddress);
 }
 
 

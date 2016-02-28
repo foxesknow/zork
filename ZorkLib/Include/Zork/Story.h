@@ -1,6 +1,8 @@
 #pragma once
 
-#include<map>
+#include <map>
+#include <set>
+#include <vector>
 
 #include <Zork\AddressSpace.h>
 #include <Zork\StringReader.h>
@@ -11,13 +13,16 @@ namespace zork
 class Story
 {
 private:
+	Byte m_Version;
+
 	AddressSpace m_AddressSpace;
 	
 	Address m_StaticBase;
-	Address m_AbbereviationTableBase;
-	Address m_DictionaryLocation;
 
 	std::map<int,std::string> m_Abbreviations;
+	std::set<std::string> m_Dictionary;
+
+	std::vector<Word> m_PropertyDefaults;
 
 
 private:
@@ -26,6 +31,8 @@ private:
 	std::string readAbbreviation(int addreviationNumber)const;
 
 	void buildDictionary();
+
+	void parseObjectTable();
 
 	Address increaseByteAddress(Address address, int amount)const
 	{
@@ -44,8 +51,6 @@ public:
 	Story(AddressSpace &&addressSpace);
 
 	// For now...
-	
-
 	std::string readString(Address address)const;
 	std::string readString(StringReader &reader)const;
 	

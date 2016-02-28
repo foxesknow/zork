@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 #include <string>
 #include <Zork\CoreTypes.h>
 
@@ -26,6 +27,8 @@ public:
 		m_Memory=new Byte[size];
 	}
 
+	AddressSpace(const AddressSpace&)=delete;
+
 	AddressSpace(AddressSpace &&rhs)
 	{
 		m_Memory=rhs.m_Memory;
@@ -39,6 +42,19 @@ public:
 	{
 		delete []m_Memory;
 	}
+
+	AddressSpace &operator=(AddressSpace &&rhs)
+	{
+		if(this!=&rhs)
+		{
+			std::swap(m_Memory,rhs.m_Memory);
+			std::swap(m_Size,rhs.m_Size);
+		}
+
+		return *this;
+	}
+
+	AddressSpace &operator=(const AddressSpace&)=delete;
 
 	Byte *base()
 	{
