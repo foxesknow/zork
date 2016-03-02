@@ -37,7 +37,7 @@ namespace zork
 
 std::string Story::readString(Address normalizedAddress)const
 {
-	StringReader reader(&m_AddressSpace,normalizedAddress);
+	StringReader reader(m_AddressSpace,normalizedAddress);
 	return readString(reader);	
 }
 

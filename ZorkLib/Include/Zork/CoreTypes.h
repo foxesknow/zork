@@ -34,10 +34,9 @@ public:
 	}
 };
 
-inline Address increaseWordAddress(Address address, int amount)
+constexpr Address increaseWordAddress(Address address, int amount)
 {
-	auto offset=sizeof(Word)*amount;
-	return static_cast<Address>(address+offset);
+	return static_cast<Address>(address+(sizeof(Word)*amount));
 }
 
 

@@ -8,7 +8,7 @@ namespace zork
 class StringReader
 {
 private:
-	const AddressSpace *m_AddressSpace;
+	const AddressSpace &m_AddressSpace;
 	Address m_Address;
 
 	int m_Chars[3];
@@ -19,7 +19,7 @@ private:
 private:
 	void update(Address address)
 	{
-		auto word=m_AddressSpace->readWord(address);
+		auto word=m_AddressSpace.readWord(address);
 
 		m_Chars[2]=word & 0x1f;
 		word >>= 5;
@@ -34,9 +34,13 @@ private:
 		m_Index=0;
 	}
 
+	StringReader(const StringReader&)=delete;
+	StringReader(StringReader&&)=delete;
+	StringReader &operator=(const StringReader&)=delete;
+	StringReader &operator=(StringReader&&)=delete;
 
 public:
-	StringReader(const AddressSpace *addressSpace, Address normalizedAddress) : m_AddressSpace(addressSpace), m_Address(normalizedAddress)
+	StringReader(const AddressSpace &addressSpace, Address normalizedAddress) : m_AddressSpace(addressSpace), m_Address(normalizedAddress)
 	{
 		update(m_Address);
 	}

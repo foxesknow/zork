@@ -21,21 +21,19 @@ private:
 		}
 	}
 
+	AddressSpace(const AddressSpace&)=delete;
+	AddressSpace &operator=(const AddressSpace &rhs)=delete;
+
 public:
 	explicit AddressSpace(size_t size) : m_Size(size)
 	{
 		m_Memory=new Byte[size];
-	}
+	}	
 
-	AddressSpace(const AddressSpace&)=delete;
-
-	AddressSpace(AddressSpace &&rhs)
+	AddressSpace(AddressSpace &&rhs) : m_Memory(nullptr), m_Size(0)
 	{
-		m_Memory=rhs.m_Memory;
-		m_Size=rhs.m_Size;
-
-		rhs.m_Memory=nullptr;
-		rhs.m_Size=0;
+		std::swap(m_Memory,rhs.m_Memory);
+		std::swap(m_Size,rhs.m_Size);
 	}
 
 	~AddressSpace()
@@ -53,8 +51,6 @@ public:
 
 		return *this;
 	}
-
-	AddressSpace &operator=(const AddressSpace&)=delete;
 
 	Byte *base()
 	{
