@@ -1,6 +1,9 @@
 #include <utility>
 
+#include <iostream>
+
 #include <Zork\Story.h>
+#include <Zork\Object.h>
 
 namespace zork
 {
@@ -76,12 +79,25 @@ void Story::buildDictionary()
 	}
 }
 
+Object Story::getObject(int objectID)const
+{
+	auto objectTableAddress=m_AddressSpace.readWord(0x0a);
+	const int numberOfDefaults=versionThreeOrLess(m_Version,31,63);
+	const auto objectTreeAddress=increaseWordAddress(objectTableAddress,numberOfDefaults);
+
+	const int entrySize=versionThreeOrLess(m_Version,9,14);
+
+	// objectIDs are 1 based
+	Address objectAddress=objectTreeAddress+((objectID-1)*entrySize);
+	return Object(m_AddressSpace,objectAddress);
+}
+
 void Story::parseObjectTable()
 {
 	auto objectTableAddress=m_AddressSpace.readWord(0x0a);
 
 	// First, read the defaults
-	int numberOfDefaults=(m_Version>3 ? 63 : 31);
+	const int numberOfDefaults=versionThreeOrLess(m_Version,31,63);
 	for(int i=0; i<numberOfDefaults; i++)
 	{
 		auto address=increaseWordAddress(objectTableAddress,i);
@@ -90,8 +106,19 @@ void Story::parseObjectTable()
 	}
 
 	// See page 65 of spec
-	auto objectTreeAddress=increaseWordAddress(objectTableAddress,numberOfDefaults);
-	auto raw=m_AddressSpace.pointerTo(objectTreeAddress);
+
+	for(int i=1; i<10; i++)
+	{
+		Object object=getObject(i);
+		auto nameAddress=object.getNameAddress();
+		auto name=readString(nameAddress);
+
+		std::cout	<< object.getParent() << " " 
+					<< object.getSibling() << " "
+					<< object.getChild() << " "
+					<< name
+					<< std::endl;
+	}
 }
 
 

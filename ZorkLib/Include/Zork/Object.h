@@ -10,58 +10,55 @@ namespace zork
 class Object
 {
 private:
-	std::vector<Byte> m_Attributes;
-	Word m_Parent;
-	Word m_Sibling;
-	Word m_Child;
+	const AddressSpace &m_AddressSpace;
+	Address m_Address;
+	bool m_V3OrLess;
 
-	Address m_PropetiesAddress;
+	Object(const Object&)=delete;
+	Object &operator=(const Object&)=delete;
+	Object &operator=(Object&&)=delete;
 
 public:
-
-	void addAttribute(Byte byte)
+	Object(const AddressSpace &addressSpace, Address address) : m_AddressSpace(addressSpace), m_Address(address)
 	{
-		m_Attributes.push_back(byte);
+		m_V3OrLess=versionThreeOrLess(addressSpace.readByte(0),true,false);
 	}
 
-	void setParent(Word parent)
+	Object(Object &&rhs) : m_AddressSpace(rhs.m_AddressSpace), m_Address(rhs.m_Address), m_V3OrLess(rhs.m_V3OrLess)
 	{
-		m_Parent=parent;
 	}
 
 	Word getParent()const
 	{
-		return m_Parent;
-	}
-
-	void setSibling(Word sibling)
-	{
-		m_Sibling=sibling;
+		Address address=(m_V3OrLess ? m_Address+4 : m_Address+6);
+		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
 
 	Word getSibling()const
 	{
-		return m_Sibling;
-	}
-
-	void setChild(Word child)
-	{
-		m_Child=child;
+		Address address=(m_V3OrLess ? m_Address+5 : m_Address+8);
+		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
 
 	Word getChild()const
 	{
-		return m_Child;
-	}
-
-	void setPropertiesAddres(Address propertiesAddress)
-	{
-		m_PropetiesAddress=propertiesAddress;
+		Address address=(m_V3OrLess ? m_Address+6 : m_Address+10);
+		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
 
 	Address getPropertiesAddress()const
 	{
-		return m_PropetiesAddress;
+		Address address=(m_V3OrLess ? m_Address+7 : m_Address+12);
+		return m_V3OrLess ? m_AddressSpace.readWord(address) : m_AddressSpace.readWord(address);
+	}
+
+	Address getNameAddress()const
+	{
+		auto address=getPropertiesAddress();
+
+		// The next byte is the number of WORDS in the string
+		address++;
+		return address;
 	}
 
 };

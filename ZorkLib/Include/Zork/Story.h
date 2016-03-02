@@ -6,6 +6,7 @@
 
 #include <Zork\AddressSpace.h>
 #include <Zork\StringReader.h>
+#include <Zork\Object.h>
 
 namespace zork
 {
@@ -53,6 +54,8 @@ public:
 	// For now...
 	std::string readString(Address address)const;
 	std::string readString(StringReader &reader)const;
+
+	Object getObject(int objectID)const;
 	
 };
 

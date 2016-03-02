@@ -39,5 +39,11 @@ constexpr Address increaseWordAddress(Address address, int amount)
 	return static_cast<Address>(address+(sizeof(Word)*amount));
 }
 
+template<class T>
+constexpr T versionThreeOrLess(int version, T ifTrue, T ifFalse)
+{
+	return version<=3 ? ifTrue : ifFalse;
+}
+
 
 } // End of namespace
