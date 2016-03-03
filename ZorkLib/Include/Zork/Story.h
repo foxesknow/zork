@@ -16,7 +16,7 @@ class Story
 private:
 	Byte m_Version;
 
-	AddressSpace m_AddressSpace;
+	mutable AddressSpace m_AddressSpace;
 	
 	Address m_StaticBase;
 

@@ -80,6 +80,13 @@ public:
 		return m_Memory[address];
 	}
 
+	void writeByte(Address address, Byte value)
+	{
+		checkIsValid(address);
+
+		m_Memory[address]=value;
+	}
+
 	Word readWord(Address address)const
 	{
 		checkIsValid(address);

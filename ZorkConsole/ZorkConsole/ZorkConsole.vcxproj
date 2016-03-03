@@ -150,6 +150,7 @@
     <ClInclude Include="..\..\ZorkLib\Include\Zork\AddressSpace.h" />
     <ClInclude Include="..\..\ZorkLib\Include\Zork\CoreTypes.h" />
     <ClInclude Include="..\..\ZorkLib\Include\Zork\Object.h" />
+    <ClInclude Include="..\..\ZorkLib\Include\Zork\PropertyBlock.h" />
     <ClInclude Include="..\..\ZorkLib\Include\Zork\Story.h" />
     <ClInclude Include="..\..\ZorkLib\Include\Zork\StringReader.h" />
     <ClInclude Include="stdafx.h" />
@@ -157,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ZorkLib\Source\AddressSpace.cpp" />
+    <ClCompile Include="..\..\ZorkLib\Source\Object.cpp" />
     <ClCompile Include="..\..\ZorkLib\Source\Story.cpp" />
     <ClCompile Include="..\..\ZorkLib\Source\Story.Strings.cpp" />
     <ClCompile Include="stdafx.cpp">

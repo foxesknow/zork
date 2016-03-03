@@ -1,8 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <tuple>
 
 #include <Zork\CoreTypes.h>
+#include <Zork\AddressSpace.h>
+#include <Zork\PropertyBlock.h>
 
 namespace zork
 {
@@ -10,7 +13,7 @@ namespace zork
 class Object
 {
 private:
-	const AddressSpace &m_AddressSpace;
+	AddressSpace &m_AddressSpace;
 	Address m_Address;
 	bool m_V3OrLess;
 
@@ -18,8 +21,28 @@ private:
 	Object &operator=(const Object&)=delete;
 	Object &operator=(Object&&)=delete;
 
+	std::tuple<int,Byte> getFlagLocation(int flagID)const
+	{
+		int byte=flagID/8;
+		Byte offset=1 << (7-(flagID & 7));
+
+		return std::make_tuple(byte,offset);
+	}
+
+	Address getPropertyBlockBase()const
+	{
+		auto base=getNameAddress();
+		
+		// The length is the number of WORDS that make up the name
+		auto nameLength=m_AddressSpace.readByte(base-1);
+
+		return increaseWordAddress(base,nameLength);
+	}
+
+	std::tuple<Address,int,int,bool> getPropertyBlockInfo(Address address)const;
+
 public:
-	Object(const AddressSpace &addressSpace, Address address) : m_AddressSpace(addressSpace), m_Address(address)
+	Object(AddressSpace &addressSpace, Address address) : m_AddressSpace(addressSpace), m_Address(address)
 	{
 		m_V3OrLess=versionThreeOrLess(addressSpace.readByte(0),true,false);
 	}
@@ -61,6 +84,38 @@ public:
 		return address;
 	}
 
+	bool getFlag(int flagID)const
+	{
+		auto location=getFlagLocation(flagID);
+		Address address=m_Address+std::get<0>(location);
+		Byte mask=std::get<1>(location);
+		
+		auto value=m_AddressSpace.readByte(address);
+		return (value & mask)!=0;
+	}
+
+	void setFlag(int flagID, bool state)
+	{
+		auto location=getFlagLocation(flagID);
+		Address address=m_Address+std::get<0>(location);
+		Byte mask=std::get<1>(location);
+		
+		auto value=m_AddressSpace.readByte(address);
+		if(state)
+		{
+			value|=mask;
+		}
+		else
+		{
+			value&=~mask;
+		}
+
+		m_AddressSpace.writeByte(address,value);
+	}
+
+	PropertyBlock getPropertyBlock(int index)const;
+
+	std::vector<PropertyBlock> getAllPropertyBlocks()const;
 };
 
 } // end of namespace

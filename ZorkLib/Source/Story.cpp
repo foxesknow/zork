@@ -113,6 +113,8 @@ void Story::parseObjectTable()
 		auto nameAddress=object.getNameAddress();
 		auto name=readString(nameAddress);
 
+		auto allProps=object.getAllPropertyBlocks();
+
 		std::cout	<< object.getParent() << " " 
 					<< object.getSibling() << " "
 					<< object.getChild() << " "
