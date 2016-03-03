@@ -11,15 +11,48 @@ std::tuple<Address,int,int,bool> Object::getPropertyBlockInfo(Address address)co
 
 	// address points to the start of the size block
 
-	const Byte value=m_AddressSpace.readByte(address);
+	if(m_V3OrLess)
+	{
+		// V1-3 property blocks are: [size byte][property bytes(between 1 and 8)]
 
-	// The size is the upper 3 bytes, plus 1!
-	const Byte size=(value>>5)+1;
+		const Byte value=m_AddressSpace.readByte(address);
 
-	// The property number is in the lower 5 bits
-	const auto propertyNumber=value&0x1f;
+		// The size is the upper 3 bytes, plus 1!
+		const int size=(value>>5)+1;
 
-	return std::make_tuple(address+1,size,propertyNumber,value==0);
+		// The property number is in the lower 5 bits
+		const auto propertyNumber=value & 31;
+
+		return std::make_tuple(address+1,size,propertyNumber,value==0);
+	}
+	else
+	{
+		// V4+ property blocks are [size and number (1 or 2 bytes)[property bytes(between 1 and 64)]
+
+		const Byte value=m_AddressSpace.readByte(address);
+
+		const auto propertyNumber=value & 63;
+		int size=0;
+
+		// If bit 7 is set then there a 2nd size byte
+		if(value & 128)
+		{
+			address++;
+			auto encodedSize=m_AddressSpace.readByte(address);
+
+			size=encodedSize & 63;
+			if(size==0) size=64;
+		}
+		else
+		{
+			// There isn't an extra size field.
+			// If bit 7 isn't set then bit 6 indicates if the length is 2 (set to 1), or 1 (set to 0)
+			auto shortSizeMarker=value & 64;
+			size=(shortSizeMarker ? 2 : 1);
+		}
+
+		return std::make_tuple(address+1,size,propertyNumber,value==0);
+	}
 
 }
 
