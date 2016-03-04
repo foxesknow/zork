@@ -5,7 +5,7 @@
 #include <vector>
 
 #include <Zork\AddressSpace.h>
-#include <Zork\StringReader.h>
+#include <Zork\ZsciiReader.h>
 #include <Zork\Object.h>
 
 namespace zork
@@ -46,7 +46,7 @@ private:
 		return address*2;
 	}
 
-	void resolveCharacter(std::string &text, const char *&alphabet, StringReader &reader)const;
+	void resolveCharacter(std::string &text, const char *&alphabet, ZsciiReader &reader)const;
 
 	Address getObjectTreeBaseAddress()const;
 
@@ -55,7 +55,7 @@ public:
 
 	// For now...
 	std::string readString(Address address)const;
-	std::string readString(StringReader &reader)const;
+	std::string readString(ZsciiReader &reader)const;
 
 	Object getObject(int objectID)const;
 

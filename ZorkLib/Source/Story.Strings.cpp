@@ -37,11 +37,11 @@ namespace zork
 
 std::string Story::readString(Address normalizedAddress)const
 {
-	StringReader reader(m_AddressSpace,normalizedAddress);
+	ZsciiReader reader(m_AddressSpace,normalizedAddress);
 	return readString(reader);	
 }
 
-std::string Story::readString(StringReader &reader)const
+std::string Story::readString(ZsciiReader &reader)const
 {
 	std::string value;
 
@@ -55,7 +55,7 @@ std::string Story::readString(StringReader &reader)const
 	return value;
 }
 
-void Story::resolveCharacter(std::string &text, const char *&alphabet, StringReader &reader)const
+void Story::resolveCharacter(std::string &text, const char *&alphabet, ZsciiReader &reader)const
 {
 	int character=reader.getCurrent();
 

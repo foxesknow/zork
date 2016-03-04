@@ -45,13 +45,13 @@
     <ClInclude Include="..\..\ZorkLib\Include\Zork\Story.h">
       <Filter>ZorkLib\Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ZorkLib\Include\Zork\StringReader.h">
-      <Filter>ZorkLib\Include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ZorkLib\Include\Zork\Object.h">
       <Filter>ZorkLib\Include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ZorkLib\Include\Zork\PropertyBlock.h">
+      <Filter>ZorkLib\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ZorkLib\Include\Zork\ZsciiReader.h">
       <Filter>ZorkLib\Include</Filter>
     </ClInclude>
   </ItemGroup>

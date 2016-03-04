@@ -5,7 +5,7 @@
 namespace zork
 {
 
-class StringReader
+class ZsciiReader
 {
 private:
 	const AddressSpace &m_AddressSpace;
@@ -34,13 +34,13 @@ private:
 		m_Index=0;
 	}
 
-	StringReader(const StringReader&)=delete;
-	StringReader(StringReader&&)=delete;
-	StringReader &operator=(const StringReader&)=delete;
-	StringReader &operator=(StringReader&&)=delete;
+	ZsciiReader(const ZsciiReader&)=delete;
+	ZsciiReader(ZsciiReader&&)=delete;
+	ZsciiReader &operator=(const ZsciiReader&)=delete;
+	ZsciiReader &operator=(ZsciiReader&&)=delete;
 
 public:
-	StringReader(const AddressSpace &addressSpace, Address normalizedAddress) : m_AddressSpace(addressSpace), m_Address(normalizedAddress)
+	ZsciiReader(const AddressSpace &addressSpace, Address normalizedAddress) : m_AddressSpace(addressSpace), m_Address(normalizedAddress)
 	{
 		update(m_Address);
 	}

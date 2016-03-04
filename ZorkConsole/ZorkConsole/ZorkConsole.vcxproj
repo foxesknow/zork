@@ -152,7 +152,7 @@
     <ClInclude Include="..\..\ZorkLib\Include\Zork\Object.h" />
     <ClInclude Include="..\..\ZorkLib\Include\Zork\PropertyBlock.h" />
     <ClInclude Include="..\..\ZorkLib\Include\Zork\Story.h" />
-    <ClInclude Include="..\..\ZorkLib\Include\Zork\StringReader.h" />
+    <ClInclude Include="..\..\ZorkLib\Include\Zork\ZsciiReader.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
