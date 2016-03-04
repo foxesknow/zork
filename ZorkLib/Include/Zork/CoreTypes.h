@@ -34,6 +34,7 @@ public:
 	}
 };
 
+/** Increases an address by the specified number of words */
 constexpr Address increaseWordAddress(Address address, int amount)
 {
 	return static_cast<Address>(address+(sizeof(Word)*amount));

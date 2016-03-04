@@ -10,6 +10,9 @@
 namespace zork
 {
 
+/**
+ * Represents an object in the game
+ */
 class Object
 {
 private:
@@ -21,6 +24,10 @@ private:
 	Object &operator=(const Object&)=delete;
 	Object &operator=(Object&&)=delete;
 
+	/**
+	 * Works out the location of a flag in an array.
+	 * Attribute are stored topmost bit first, so flag 0 is bit 7 of the first byte etc
+	 */
 	std::tuple<int,Byte> getFlagLocation(int flagID)const
 	{
 		int byte=flagID/8;
@@ -39,6 +46,10 @@ private:
 		return increaseWordAddress(base,nameLength);
 	}
 
+	/**
+	 * Returns information on the property block at the given address.
+	 * The tuple is (StartOfData, SizeOfData, PropertyNumber, Terminator)
+	 */
 	std::tuple<Address,int,int,bool> getPropertyBlockInfo(Address address)const;
 
 public:
@@ -51,30 +62,35 @@ public:
 	{
 	}
 
+	/** Returns the number of the parent, or 0 if no parent */
 	Word getParent()const
 	{
 		Address address=(m_V3OrLess ? m_Address+4 : m_Address+6);
 		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
 
+	/** Returns the number of the sibling, or 0 if no sibling */
 	Word getSibling()const
 	{
 		Address address=(m_V3OrLess ? m_Address+5 : m_Address+8);
 		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
 
+	/** Returns the number of the child, or 0 if no child */
 	Word getChild()const
 	{
 		Address address=(m_V3OrLess ? m_Address+6 : m_Address+10);
 		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
 
+	/** The address of the object properties */
 	Address getPropertiesAddress()const
 	{
 		Address address=(m_V3OrLess ? m_Address+7 : m_Address+12);
 		return m_V3OrLess ? m_AddressSpace.readWord(address) : m_AddressSpace.readWord(address);
 	}
 
+	/** The address of the name of the object */
 	Address getNameAddress()const
 	{
 		auto address=getPropertiesAddress();
@@ -84,6 +100,7 @@ public:
 		return address;
 	}
 
+	/** Gets the value of the specified flag */
 	bool getFlag(int flagID)const
 	{
 		auto location=getFlagLocation(flagID);
@@ -94,6 +111,7 @@ public:
 		return (value & mask)!=0;
 	}
 
+	/** Sets the flag to the specified state */
 	void setFlag(int flagID, bool state)
 	{
 		auto location=getFlagLocation(flagID);
@@ -113,9 +131,17 @@ public:
 		m_AddressSpace.writeByte(address,value);
 	}
 
+	/** Returns the specified property block */
 	PropertyBlock getPropertyBlock(int index)const;
 
+	/** Returns all the property blocks for the object */
 	std::vector<PropertyBlock> getAllPropertyBlocks()const;
+
+	/** Returns the size of an object entry */
+	static int getEntrySize(Byte version)
+	{
+		return versionThreeOrLess(version,9,14);
+	}
 };
 
 } // end of namespace

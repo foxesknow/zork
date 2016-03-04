@@ -48,6 +48,8 @@ private:
 
 	void resolveCharacter(std::string &text, const char *&alphabet, StringReader &reader)const;
 
+	Address getObjectTreeBaseAddress()const;
+
 public:
 	Story(AddressSpace &&addressSpace);
 
@@ -56,6 +58,8 @@ public:
 	std::string readString(StringReader &reader)const;
 
 	Object getObject(int objectID)const;
+
+	int getNumberOfObjects()const;
 	
 };
 

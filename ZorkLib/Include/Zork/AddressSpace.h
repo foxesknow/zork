@@ -52,27 +52,32 @@ public:
 		return *this;
 	}
 
+	/** Returns a pointer to the start of the address space */
 	Byte *base()
 	{
 		return m_Memory;
 	}
 
+	/** Returns a pointer to the start of the address space */
 	const Byte *base()const
 	{
 		return m_Memory;
 	}
 
+	/** Returns the size of the address space */
 	size_t size()const
 	{
 		return m_Size;
 	}
 
+	/** Returns a pointer to the specified address */
 	const Byte *pointerTo(Address address)const
 	{
 		checkIsValid(address);
 		return m_Memory+address;
 	}
 
+	/** Reads a byte */
 	Byte readByte(Address address)const
 	{
 		checkIsValid(address);
@@ -80,6 +85,7 @@ public:
 		return m_Memory[address];
 	}
 
+	/* Writes a byte */
 	void writeByte(Address address, Byte value)
 	{
 		checkIsValid(address);
@@ -87,6 +93,7 @@ public:
 		m_Memory[address]=value;
 	}
 
+	/** Reads a word */
 	Word readWord(Address address)const
 	{
 		checkIsValid(address);

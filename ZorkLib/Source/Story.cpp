@@ -79,17 +79,38 @@ void Story::buildDictionary()
 	}
 }
 
-Object Story::getObject(int objectID)const
+Address Story::getObjectTreeBaseAddress()const
 {
 	auto objectTableAddress=m_AddressSpace.readWord(0x0a);
 	const int numberOfDefaults=versionThreeOrLess(m_Version,31,63);
 	const auto objectTreeAddress=increaseWordAddress(objectTableAddress,numberOfDefaults);
 
-	const int entrySize=versionThreeOrLess(m_Version,9,14);
+	return objectTreeAddress;
+}
+
+Object Story::getObject(int objectID)const
+{
+	const auto objectTreeAddress=getObjectTreeBaseAddress();
+	const int entrySize=Object::getEntrySize(m_Version);
 
 	// objectIDs are 1 based
 	Address objectAddress=objectTreeAddress+((objectID-1)*entrySize);
 	return Object(m_AddressSpace,objectAddress);
+}
+
+int Story::getNumberOfObjects()const
+{
+	// There's no explicit count of the number of objects.
+	// However, the properties for the first object follow
+	// straight after the last object, so we can work it
+	// out from this
+	
+	auto treeBase=getObjectTreeBaseAddress();
+	auto lastObject=m_AddressSpace.readWord(treeBase+Object::getEntrySize(m_Version)-2);
+	auto entrySize=Object::getEntrySize(m_Version);
+
+	auto numberOfObjects=(lastObject-treeBase)/entrySize;
+	return numberOfObjects;
 }
 
 void Story::parseObjectTable()
@@ -107,9 +128,10 @@ void Story::parseObjectTable()
 
 	// See page 65 of spec
 
-	for(int i=1; i<10; i++)
+	auto numberOfObjects=getNumberOfObjects();
+	for(int i=0; i<numberOfObjects; i++)
 	{
-		Object object=getObject(i);
+		Object object=getObject(i+1);
 		auto nameAddress=object.getNameAddress();
 		auto name=readString(nameAddress);
 

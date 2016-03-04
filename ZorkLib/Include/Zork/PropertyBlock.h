@@ -17,16 +17,19 @@ public:
 	{
 	}
 
+	/** The address of the block */
 	Address getAddress()const
 	{
 		return m_Address;
 	}
 
+	/** The size of the block */
 	int getSize()const
 	{
 		return m_Size;
 	}
 
+	/** The property block number(ID) */
 	int getID()const
 	{
 		return m_ID;

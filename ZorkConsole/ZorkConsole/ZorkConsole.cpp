@@ -12,13 +12,15 @@
 int main()
 {
     std::string filename="D:\\Git\\zork\\StoryFiles\\minizork.z3";
+	//std::string filename="D:\\Git\\zork\\StoryFiles\\Zork\\zork2.z3";
+	//std::string filename="D:\\Git\\zork\\StoryFiles\\moonmist\\moonmist.z5";
 
 	zork::AddressSpace addressSpace=zork::loadAddressSpaceFromFile(filename);
 
 	zork::Story story(std::move(addressSpace));
 
-	auto s=story.readString(0xb106);
-	std::cout << s << std::endl;
+	//auto s=story.readString(0xb106);
+	//std::cout << s << std::endl;
 
 	return 0;
 }
