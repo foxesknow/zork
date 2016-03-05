@@ -14,6 +14,7 @@ Story::Story(AddressSpace &&addressSpace) : m_AddressSpace(std::move(addressSpac
 
 	m_Version=m_AddressSpace.readByte(0);
 	m_StaticBase=m_AddressSpace.readWord(0x0e);
+	m_GlobalVariablesTable=m_AddressSpace.readWord(0x0c);
 
 	buildAbbreviationCache();
 	buildDictionary();

@@ -54,6 +54,9 @@
     <ClInclude Include="..\..\ZorkLib\Include\Zork\ZsciiReader.h">
       <Filter>ZorkLib\Include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\ZorkLib\Include\Zork\StackSpace.h">
+      <Filter>ZorkLib\Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

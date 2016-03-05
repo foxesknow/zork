@@ -19,6 +19,7 @@ private:
 	mutable AddressSpace m_AddressSpace;
 	
 	Address m_StaticBase;
+	Address m_GlobalVariablesTable;
 
 	std::map<int,std::string> m_Abbreviations;
 	std::set<std::string> m_Dictionary;
