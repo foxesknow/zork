@@ -57,6 +57,9 @@
     <ClInclude Include="..\..\ZorkLib\Include\Zork\StackSpace.h">
       <Filter>ZorkLib\Include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\ZorkLib\Include\Zork\Instructions.h">
+      <Filter>ZorkLib\Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -75,6 +78,12 @@
       <Filter>ZorkLib\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ZorkLib\Source\Object.cpp">
+      <Filter>ZorkLib\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ZorkLib\Source\Instructions.cpp">
+      <Filter>ZorkLib\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ZorkLib\Source\Story.Execution.cpp">
       <Filter>ZorkLib\Source</Filter>
     </ClCompile>
   </ItemGroup>

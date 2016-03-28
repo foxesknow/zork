@@ -61,6 +61,11 @@ public:
 
 	void revertToFrame(const FrameInfo &info)
 	{
+		if(info.getBase()>m_SP)
+		{
+			throw Exception("cannot revert to a stack address greater than the current stack pointer");
+		}
+
 		m_SP=info.getBase();
 	}
 

@@ -7,6 +7,7 @@
 #include <Zork\AddressSpace.h>
 #include <Zork\ZsciiReader.h>
 #include <Zork\Object.h>
+#include <Zork\Instructions.h>
 
 namespace zork
 {
@@ -20,6 +21,7 @@ private:
 	
 	Address m_StaticBase;
 	Address m_GlobalVariablesTable;
+	Address m_PC;
 
 	std::map<int,std::string> m_Abbreviations;
 	std::set<std::string> m_Dictionary;
@@ -51,6 +53,26 @@ private:
 
 	Address getObjectTreeBaseAddress()const;
 
+	void executeOP0(OpcodeDetails opcodeDetails);
+	void executeOP1(OpcodeDetails opcodeDetails, OperandType type1);
+	void executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2);
+	void executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+
+	void storeVariable(Byte variableID, Word value);
+	Word loadVariable(Byte variableID);
+
+	Byte readNextByte()
+	{
+		return m_AddressSpace.readByte(m_PC++);
+	}
+
+	Word readNextWord()
+	{
+		Word value=m_AddressSpace.readWord(m_PC);
+		m_PC=increaseWordAddress(m_PC,1);
+		return value;
+	}
+
 public:
 	Story(AddressSpace &&addressSpace);
 
@@ -61,6 +83,9 @@ public:
 	Object getObject(int objectID)const;
 
 	int getNumberOfObjects()const;
+
+	void executeNextInstruction();
+	OpcodeDetails decode(OpcodeForm &opcodeForm, OperandCount &operandCount);
 	
 };
 

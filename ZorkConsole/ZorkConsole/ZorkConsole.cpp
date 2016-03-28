@@ -9,6 +9,7 @@
 #include <Zork\AddressSpace.h>
 #include <Zork\Story.h>
 #include <Zork\StackSpace.h>
+#include <Zork\Instructions.h>
 
 int main()
 {
