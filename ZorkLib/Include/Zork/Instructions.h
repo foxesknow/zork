@@ -31,19 +31,28 @@ inline OpcodeForm ToOpcodeForm(Byte opcode)
 class OpcodeDetails
 {
 private:
+	Address m_BaseAddress;
 	Byte m_EncodedOpcode;
 	Byte m_DecodedOpcode;
 
 public:
-	OpcodeDetails(Byte encodedOpcode, Byte decodedOpcode) : m_EncodedOpcode(encodedOpcode), m_DecodedOpcode(decodedOpcode)
+	OpcodeDetails(Address baseAddress, Byte encodedOpcode, Byte decodedOpcode) : m_BaseAddress(baseAddress), m_EncodedOpcode(encodedOpcode), m_DecodedOpcode(decodedOpcode)
 	{
 	}
 
+	/** The PC address where the opcode was read from */
+	Address getBaseAddress()const
+	{
+		return m_BaseAddress;
+	}
+
+	/** The opcode as it was fully encoded */
 	Byte getEncodedOpcode()const
 	{
 		return m_EncodedOpcode;
 	}
 
+	/** The opcode after any type information has been stripped away */
 	Byte getDecodedOpcode()const
 	{
 		return m_DecodedOpcode;
@@ -70,6 +79,66 @@ enum class OperandType : Byte
 constexpr OperandType ToOperandType(Byte value)
 {
 	return value>=0 && value <=2 ? static_cast<OperandType>(value) : OperandType::Omitted;
+}
+
+/*
+ * For Long 2OP opcodes bit 6 is the type of the first operand, bit 5 the type of the second.
+ * If the bit is 0 it means a small constant, 1 means a variable
+ */
+constexpr Byte MakeLong_2OP_SC_SC(Byte opcode)
+{
+	return opcode & 31;	// The bottom 5 bits is the opcode
+}
+
+constexpr Byte MakeLong_2OP_SC_VAR(Byte opcode)
+{
+	return (opcode & 31) | (1<<5);	
+}
+
+constexpr Byte MakeLong_2OP_VAR_SC(Byte opcode)
+{
+	return (opcode & 31) | (1<<6);
+}
+
+constexpr Byte MakeLong_2OP_VAR_VAR(Byte opcode)
+{
+	return (opcode & 31) | (1<<5) | (1<<6);
+}
+
+/*
+ * For short 1OP opcodes bit 4 and 5 give the opcode type
+ */
+constexpr Byte MakeShort_1OP_LC(Byte opcode)
+{
+	return (2 << 6) | (opcode & 15) | static_cast<Byte>(OperandType::Large)<<4;
+}
+
+constexpr Byte MakeShort_1OP_SC(Byte opcode)
+{
+	return (2 << 6) | (opcode & 15) | static_cast<Byte>(OperandType::Small)<<4;
+}
+
+constexpr Byte MakeShort_1OP_VAR(Byte opcode)
+{
+	return (2 << 6) | (opcode & 15) | static_cast<Byte>(OperandType::Variable)<<4;
+}
+
+constexpr Byte MakeShort_0OP(Byte opcode)
+{
+	return (2 << 6) | (opcode & 15) | static_cast<Byte>(OperandType::Omitted)<<4;
+}
+
+/*
+ * For variable opcodes the 5 bit is 1 vor variable, and 0 for 2 operands
+ */
+constexpr Byte MakeVariable_2OP(Byte opcode)
+{
+	return (3 << 6) | (opcode & 31);
+}
+
+constexpr Byte MakeVariable_VAR(Byte opcode)
+{
+	return (3 << 6) | (opcode & 31) | (1 << 5);
 }
 
 /*

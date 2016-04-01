@@ -89,6 +89,7 @@ Word Story::loadVariable(Byte variableID)
 
 OpcodeDetails Story::decode(OpcodeForm &opcodeForm, OperandCount &operandCount)
 {
+	auto baseAddress=m_PC;
 	const Byte value=readNextByte();
 
 	opcodeForm=ToOpcodeForm(value);
@@ -98,7 +99,7 @@ OpcodeDetails Story::decode(OpcodeForm &opcodeForm, OperandCount &operandCount)
 		operandCount=((value & 48)==48 ? OperandCount::OP0 : OperandCount::OP1);
 
 		// The opcode is in the bottom 4 bits
-		return OpcodeDetails(value,value & 15);
+		return OpcodeDetails(baseAddress,value,value & 15);
 	}
 
 	if(opcodeForm==OpcodeForm::Long)
@@ -106,7 +107,7 @@ OpcodeDetails Story::decode(OpcodeForm &opcodeForm, OperandCount &operandCount)
 		operandCount=OperandCount::OP2;
 		
 		// The opcode is in the bottom 5 bits
-		return OpcodeDetails(value,value & 31);
+		return OpcodeDetails(baseAddress,value,value & 31);
 	}
 
 	if(opcodeForm==OpcodeForm::Variable)
@@ -114,7 +115,7 @@ OpcodeDetails Story::decode(OpcodeForm &opcodeForm, OperandCount &operandCount)
 		operandCount=((value & 32) ? OperandCount::Variable : OperandCount::OP2);
 
 		// The opcode is in the bottom 5 bits
-		return OpcodeDetails(value,value & 31);
+		return OpcodeDetails(baseAddress,value,value & 31);
 	}
 
 	if(opcodeForm==OpcodeForm::Extended)
@@ -124,7 +125,7 @@ OpcodeDetails Story::decode(OpcodeForm &opcodeForm, OperandCount &operandCount)
 		// The next byte has the opcode
 		Byte opcode=readNextByte();
 
-		return OpcodeDetails(value,opcode);
+		return OpcodeDetails(baseAddress,value,opcode);
 	}
 
 	throw Exception("unexpected opcode form");
