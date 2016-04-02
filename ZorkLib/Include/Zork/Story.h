@@ -3,8 +3,10 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <stack>
 
 #include <Zork\AddressSpace.h>
+#include <Zork\StackSpace.h>
 #include <Zork\ZsciiReader.h>
 #include <Zork\Object.h>
 #include <Zork\Instructions.h>
@@ -18,6 +20,8 @@ private:
 	Byte m_Version;
 
 	mutable AddressSpace m_AddressSpace;
+	StackSpace m_StackSpace;
+	std::stack<FrameInfo> m_Frames;
 	
 	Address m_StaticBase;
 	Address m_GlobalVariablesTable;
@@ -72,6 +76,20 @@ private:
 		m_PC=increaseWordAddress(m_PC,1);
 		return value;
 	}
+
+	Byte readVariableID()
+	{
+		return readNextByte();
+	}
+
+	Word read(OperandType operandType);
+
+	BranchDetails readBranchDetails();
+	
+	void applyBranch(const BranchDetails &branchDetails);
+	void applyBranch(SWord offset);
+
+	void returnFromCall(Word result);
 
 public:
 	Story(AddressSpace &&addressSpace);

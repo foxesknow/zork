@@ -12,9 +12,10 @@ class FrameInfo
 private:
 	unsigned int m_Base;
 	Address m_ReturnAddress;
+	Byte m_ResultVariable;
 
 public:
-	FrameInfo(unsigned int base, Address returnAddress) : m_Base(base), m_ReturnAddress(returnAddress)
+	FrameInfo(unsigned int base, Address returnAddress, Byte resultVariable) : m_Base(base), m_ReturnAddress(returnAddress), m_ResultVariable(resultVariable)
 	{
 	}
 
@@ -26,6 +27,11 @@ public:
 	Address getReturnAddress()const
 	{
 		return m_ReturnAddress;
+	}
+
+	Byte getResultVariable()const
+	{
+		return m_ResultVariable;
 	}
 };
 
@@ -49,34 +55,34 @@ public:
 		return m_Stack[--m_SP];
 	}
 
-	FrameInfo allocateNewFrame(Address returnAddress, unsigned int numberOfLocals)
+	FrameInfo allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Byte resultVariable)
 	{
 		auto sp=m_SP;
 
 		// Reserve space for local variables
 		m_SP+=numberOfLocals;
 
-		return FrameInfo(sp,returnAddress);
+		return FrameInfo(sp,returnAddress,resultVariable);
 	}
 
-	void revertToFrame(const FrameInfo &info)
+	void revertToFrame(const FrameInfo &frameInfo)
 	{
-		if(info.getBase()>m_SP)
+		if(frameInfo.getBase()>m_SP)
 		{
 			throw Exception("cannot revert to a stack address greater than the current stack pointer");
 		}
 
-		m_SP=info.getBase();
+		m_SP=frameInfo.getBase();
 	}
 
-	Word getLocal(const FrameInfo frameInfo, unsigned int localIndex)const
+	Word getLocal(const FrameInfo &frameInfo, unsigned int localIndex)const
 	{
 		auto zeroBasedIndex=localIndex-1;
 		auto location=frameInfo.getBase()+zeroBasedIndex;
 		return m_Stack[location];
 	}
 
-	void setLocal(const FrameInfo frameInfo, unsigned int localIndex, Word value)
+	void setLocal(const FrameInfo &frameInfo, unsigned int localIndex, Word value)
 	{
 		auto zeroBasedIndex=localIndex-1;
 		auto location=frameInfo.getBase()+zeroBasedIndex;

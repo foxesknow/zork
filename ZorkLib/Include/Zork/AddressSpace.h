@@ -105,6 +105,18 @@ public:
 		return static_cast<Word>(value);
 	}
 
+	/** Writes a word */
+	void writeWord(Address address, Word word)
+	{
+		checkIsValid(address);
+
+		Byte low=word & 0xff;
+		Byte high=word >> 8;
+		
+		m_Memory[address]=high;
+		m_Memory[address+1]=low;
+	}
+
 
 };
 

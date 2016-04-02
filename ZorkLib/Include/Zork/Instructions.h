@@ -141,6 +141,21 @@ constexpr Byte MakeVariable_VAR(Byte opcode)
 	return (3 << 6) | (opcode & 31) | (1 << 5);
 }
 
+/*******************************************************************************
+$00 -- $1f long 2OP small constant, small constant
+$20 -- $3f long 2OP small constant, variable
+$40 -- $5f long 2OP variable, small constant
+$60 -- $7f long 2OP variable, variable
+$80 -- $8f short 1OP large constant
+$90 -- $9f short 1OP small constant
+$a0 -- $af short 1OP variable
+$b0 -- $bf short 0OP
+except $be extended opcode given in next byte
+$c0 -- $df variable 2OP (operand types in next byte)
+$e0 -- $ff variable VAR (operand types in next byte(s))
+*******************************************************************************/
+
+
 /*
  * NOTE: The opcode notation uses -> to indicate a store variable.
  * It uses ? to indicate a branch. If the ? is omitted then the branch is a short form
@@ -184,6 +199,67 @@ enum class OP1_Opcodes
 	OP141,	// print_paddr
 	OP142,	// load
 	OP143,	// (v1-v4) not, (v5) call_1n
+};
+
+enum class OP2_Opcodes
+{
+	OP0_UNUSED,
+	OP1,	// je
+	OP2,	// jl
+	OP3,	// jg
+	OP4,	// dec_chk
+	OP5,	// inc_chk
+	OP6,	// jin
+	OP7,	// test
+	OP8,	// or
+	OP9,	// and
+	OP10,	// test_attr
+	OP11,	// set_attr
+	OP12,	// clear_Attr
+	OP13,	// store
+	OP14,	// insert_obj
+	OP15,	// loadw
+	OP16,	// loadb
+	OP17,	// get_prop
+	OP18,	// get_prop_addr
+	OP19,	// get_next_prop
+	OP20,	// add
+	OP21,	// sub
+	OP22,	// mul
+	OP23,	// div
+	OP24,	// mod
+	OP25,	// (v4) call_2s
+	OP26,	// (v5) call_2n
+	OP27,	// (v5) set_color, (v6) set_color
+	OP28,	// (v5/6) throw
+};
+
+
+class BranchDetails
+{
+private:
+	SWord m_Offset;
+	bool m_ComparisonValue;
+
+public:
+	BranchDetails(SWord offset, bool comparisonValue) : m_Offset(offset), m_ComparisonValue(comparisonValue)
+	{
+	}
+
+	SWord getOffset()const
+	{
+		return m_Offset;
+	}
+
+	bool getComparisonValue()const
+	{
+		return m_ComparisonValue;
+	}
+
+	bool shouldBranch(bool comparisonValue)const
+	{
+		return m_ComparisonValue==comparisonValue;
+	}
 };
 
 } // end of namespace

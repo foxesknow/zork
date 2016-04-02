@@ -67,10 +67,6 @@ void Story::executeOP1(OpcodeDetails opcodeDetails, OperandType type1)
 {
 }
 
-void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2)
-{
-}
-
 void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
 {
 }
@@ -78,13 +74,44 @@ void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 
 void Story::storeVariable(Byte variableID, Word value)
 {
-	// TODO
+	if(variableID==TopOfStack)
+	{
+		// Variable 0 means top of stack
+		m_StackSpace.push(value);
+	}
+	else if(variableID>=BeginLocal && variableID<=EndLocal)
+	{
+		// These are local variables
+		const auto &activeFrame=m_Frames.top();
+		m_StackSpace.setLocal(activeFrame,variableID,value);
+	}
+	else
+	{
+		// It's a global
+		auto address=increaseWordAddress(m_GlobalVariablesTable,variableID-BeginGlobal);
+		m_AddressSpace.writeWord(address,value);
+	}
 }
 
 Word Story::loadVariable(Byte variableID)
 {
-	// TODO
-	return 0;
+	if(variableID==TopOfStack)
+	{
+		// Variable 0 means top of stack
+		return m_StackSpace.pop();
+	}
+	else if(variableID>=BeginLocal && variableID<=EndLocal)
+	{
+		// These are local variables
+		const auto &activeFrame=m_Frames.top();
+		return m_StackSpace.getLocal(activeFrame,variableID);
+	}
+	else
+	{
+		// It's a global
+		auto address=increaseWordAddress(m_GlobalVariablesTable,variableID-BeginGlobal);
+		return m_AddressSpace.readWord(address);
+	}
 }
 
 OpcodeDetails Story::decode(OpcodeForm &opcodeForm, OperandCount &operandCount)
@@ -130,5 +157,91 @@ OpcodeDetails Story::decode(OpcodeForm &opcodeForm, OperandCount &operandCount)
 
 	throw Exception("unexpected opcode form");
 }
+
+Word Story::read(OperandType operandType)
+{
+	switch(operandType)
+	{
+		case OperandType::Large:
+			return readNextWord();
+
+		case OperandType::Small:
+			return readNextByte();
+
+		case OperandType::Variable:
+		{
+			auto variableID=readNextByte();
+			return loadVariable(variableID);
+		}
+
+		case OperandType::Omitted:
+		{
+			throw Exception("Omitted unexpected");
+		}
+
+		default:
+		{
+			throw Exception("unexpected operand type");
+		}
+	}
+}
+
+BranchDetails Story::readBranchDetails()
+{
+	Byte b1=readNextByte();
+
+	// If bit 7 is 0 the condition must be false, if 1 then the condition must be true
+	bool comparisonValue=(b1 & 128) ? true : false;
+
+	Word offset=(b1 & 63);
+
+	// If bit 6 is set then the branch is 1 byte, otherwise it's 2
+	if((b1 & 64)==0)
+	{
+		auto b2=readNextByte();
+		offset=(offset<<8) | b2;
+	}
+
+	return BranchDetails(AsSignedWord(offset),comparisonValue);
+}
+
+void Story::applyBranch(const BranchDetails &branchDetails)
+{
+	applyBranch(branchDetails.getOffset());
+}
+
+void Story::applyBranch(SWord offset)
+{
+	if(offset==0)
+	{
+		// Return false
+		returnFromCall(0);
+	}
+	else if(offset==1)
+	{
+		// Return true
+		returnFromCall(1);
+	}
+	else
+	{
+		Address newPC=m_PC+(offset-2);
+		m_PC=newPC;
+	}
+}
+
+void Story::returnFromCall(Word result)
+{
+	// First up, put the stack and PC back to what they should be
+	auto returnFrame=m_Frames.top();
+	m_Frames.pop();
+
+	m_StackSpace.revertToFrame(returnFrame);
+	m_PC=returnFrame.getReturnAddress();
+
+	// The result goes back into a variable...
+	auto resultVariableID=returnFrame.getResultVariable();
+	storeVariable(resultVariableID,result);
+}
+
 
 } // end of namespace
