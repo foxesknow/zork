@@ -92,27 +92,34 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			Word result = a & b;
 			auto variable = readVariableID();
 			storeVariable(variable, result);
+			
 			break;
 		}
 
-		case OP2_Opcodes::OP10: // test_attr
+		case OP2_Opcodes::OP10: // test_attr object attribute ?(label)
 		{
-			// TODO
-			throw Exception("not implemented");
+			auto object = getObject(a);
+			bool outcome = object.getFlag(b);
+
+			auto branchDetails = readBranchDetails();
+			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+
 			break;
 		}
 
-		case OP2_Opcodes::OP11: // set_attr
+		case OP2_Opcodes::OP11: // set_attr object attribute
 		{
-			// TODO
-			throw Exception("not implemented");
+			auto object = getObject(a);
+			object.setFlag(b, true);
+
 			break;
 		}
 
-		case OP2_Opcodes::OP12: // clear_attr
+		case OP2_Opcodes::OP12: // clear_attr object attribute
 		{
-			// TODO
-			throw Exception("not implemented");
+			auto object = getObject(a);
+			object.setFlag(b, false);
+
 			break;
 		}
 
@@ -123,6 +130,45 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			break;
 		}
 
+		case OP2_Opcodes::OP14:
+		{
+			// TODO
+			throw Exception("not implemented");
+			break;
+		}
+
+
+		case OP2_Opcodes::OP15: // loadw array word-index -> (result)
+		{
+			Address baseAddress = a;
+			auto dataAddress = increaseWordAddress(baseAddress, b);
+			auto value = m_AddressSpace.readWord(dataAddress);
+
+			auto variable = readVariableID();
+			storeVariable(variable, value);
+			
+			break;
+		};
+
+		case OP2_Opcodes::OP16: // loadb array word-index -> (result)
+		{
+			Address baseAddress = a;
+			Address dataAddress = baseAddress +  b;
+			auto value = m_AddressSpace.readByte(dataAddress);
+
+			auto variable = readVariableID();
+			storeVariable(variable, value);
+
+			break;
+		};
+
+		case OP2_Opcodes::OP17: // get_prop object property -> (result)
+		{
+			// TODO!
+			auto object = getObject(a);
+
+			break;
+		}
 
 		case OP2_Opcodes::OP20: // add a b -> (result)
 		{

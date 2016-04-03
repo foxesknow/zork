@@ -246,19 +246,22 @@ public:
 	{
 	}
 
+	/** The offset of the branch */
 	SWord getOffset()const
 	{
 		return m_Offset;
 	}
 
+	/** The value the comparison should equate to */
 	bool getComparisonValue()const
 	{
 		return m_ComparisonValue;
 	}
 
-	bool shouldBranch(bool comparisonValue)const
+	/** Returns true if the branch should be taken, otherwise false */
+	bool shouldBranch(bool outcomeOfComparison)const
 	{
-		return m_ComparisonValue == comparisonValue;
+		return m_ComparisonValue == outcomeOfComparison;
 	}
 };
 
