@@ -30,20 +30,20 @@ private:
 	 */
 	std::tuple<int,Byte> getFlagLocation(int flagID)const
 	{
-		int byte=flagID/8;
-		Byte offset=1 << (7-(flagID & 7));
+		int byte = flagID / 8;
+		Byte offset = 1 << (7 - (flagID & 7));
 
-		return std::make_tuple(byte,offset);
+		return std::make_tuple(byte, offset);
 	}
 
 	Address getPropertyBlockBase()const
 	{
-		auto base=getNameAddress();
+		auto base = getNameAddress();
 		
 		// The length is the number of WORDS that make up the name
-		auto nameLength=m_AddressSpace.readByte(base-1);
+		auto nameLength = m_AddressSpace.readByte(base - 1);
 
-		return increaseWordAddress(base,nameLength);
+		return increaseWordAddress(base, nameLength);
 	}
 
 	/**
@@ -55,7 +55,7 @@ private:
 public:
 	Object(AddressSpace &addressSpace, Address address) : m_AddressSpace(addressSpace), m_Address(address)
 	{
-		m_V3OrLess=versionThreeOrLess(addressSpace.readByte(0),true,false);
+		m_V3OrLess = versionThreeOrLess(addressSpace.readByte(0), true, false);
 	}
 
 	Object(Object &&rhs) : m_AddressSpace(rhs.m_AddressSpace), m_Address(rhs.m_Address), m_V3OrLess(rhs.m_V3OrLess)
@@ -65,35 +65,35 @@ public:
 	/** Returns the number of the parent, or 0 if no parent */
 	Word getParent()const
 	{
-		Address address=(m_V3OrLess ? m_Address+4 : m_Address+6);
+		Address address = (m_V3OrLess ? m_Address + 4 : m_Address + 6);
 		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
 
 	/** Returns the number of the sibling, or 0 if no sibling */
 	Word getSibling()const
 	{
-		Address address=(m_V3OrLess ? m_Address+5 : m_Address+8);
+		Address address = (m_V3OrLess ? m_Address + 5 : m_Address + 8);
 		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
 
 	/** Returns the number of the child, or 0 if no child */
 	Word getChild()const
 	{
-		Address address=(m_V3OrLess ? m_Address+6 : m_Address+10);
+		Address address = (m_V3OrLess ? m_Address + 6 : m_Address + 10);
 		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
 
 	/** The address of the object properties */
 	Address getPropertiesAddress()const
 	{
-		Address address=(m_V3OrLess ? m_Address+7 : m_Address+12);
+		Address address = (m_V3OrLess ? m_Address + 7 : m_Address + 12);
 		return m_V3OrLess ? m_AddressSpace.readWord(address) : m_AddressSpace.readWord(address);
 	}
 
 	/** The address of the name of the object */
 	Address getNameAddress()const
 	{
-		auto address=getPropertiesAddress();
+		auto address = getPropertiesAddress();
 
 		// The next byte is the number of WORDS in the string
 		address++;
@@ -103,32 +103,32 @@ public:
 	/** Gets the value of the specified flag */
 	bool getFlag(int flagID)const
 	{
-		auto location=getFlagLocation(flagID);
-		Address address=m_Address+std::get<0>(location);
-		Byte mask=std::get<1>(location);
+		auto location = getFlagLocation(flagID);
+		Address address = m_Address + std::get<0>(location);
+		Byte mask = std::get<1>(location);
 		
-		auto value=m_AddressSpace.readByte(address);
-		return (value & mask)!=0;
+		auto value = m_AddressSpace.readByte(address);
+		return (value & mask) != 0;
 	}
 
 	/** Sets the flag to the specified state */
 	void setFlag(int flagID, bool state)
 	{
-		auto location=getFlagLocation(flagID);
-		Address address=m_Address+std::get<0>(location);
-		Byte mask=std::get<1>(location);
+		auto location = getFlagLocation(flagID);
+		Address address = m_Address+std::get<0>(location);
+		Byte mask = std::get<1>(location);
 		
-		auto value=m_AddressSpace.readByte(address);
+		auto value = m_AddressSpace.readByte(address);
 		if(state)
 		{
-			value|=mask;
+			value |= mask;
 		}
 		else
 		{
-			value&=~mask;
+			value &= ~mask;
 		}
 
-		m_AddressSpace.writeByte(address,value);
+		m_AddressSpace.writeByte(address, value);
 	}
 
 	/** Returns the specified property block */
@@ -140,7 +140,7 @@ public:
 	/** Returns the size of an object entry */
 	static int getEntrySize(Byte version)
 	{
-		return versionThreeOrLess(version,9,14);
+		return versionThreeOrLess(version, 9, 14);
 	}
 };
 

@@ -11,18 +11,18 @@ AddressSpace loadAddressSpaceFromFile(const std::string &filename)
 	using namespace std;
 	
 	std::ifstream file;
-	file.open(filename,ios::in|ios::binary);
+	file.open(filename,ios::in | ios::binary);
 
 	// Work out the size of the file
-	file.seekg(0,ios::end);
-	size_t size=file.tellg();
+	file.seekg(0, ios::end);
+	size_t size = file.tellg();
 
-	file.seekg(0,ios::beg);
+	file.seekg(0, ios::beg);
 
 	AddressSpace addressSpace(size);
 
-	char *base=reinterpret_cast<char*>(addressSpace.base());
-	file.read(base,size);
+	char *base = reinterpret_cast<char*>(addressSpace.base());
+	file.read(base, size);
 
 	return addressSpace;
 }

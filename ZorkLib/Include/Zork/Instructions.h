@@ -258,7 +258,7 @@ public:
 
 	bool shouldBranch(bool comparisonValue)const
 	{
-		return m_ComparisonValue==comparisonValue;
+		return m_ComparisonValue == comparisonValue;
 	}
 };
 

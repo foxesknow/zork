@@ -15,7 +15,7 @@ private:
 
 	void checkIsValid(Address address)const
 	{
-		if(address>=m_Size)
+		if(address >= m_Size)
 		{
 			// TODO: panic()!
 		}
@@ -27,13 +27,13 @@ private:
 public:
 	explicit AddressSpace(size_t size) : m_Size(size)
 	{
-		m_Memory=new Byte[size];
+		m_Memory = new Byte[size];
 	}	
 
 	AddressSpace(AddressSpace &&rhs) : m_Memory(nullptr), m_Size(0)
 	{
-		std::swap(m_Memory,rhs.m_Memory);
-		std::swap(m_Size,rhs.m_Size);
+		std::swap(m_Memory, rhs.m_Memory);
+		std::swap(m_Size, rhs.m_Size);
 	}
 
 	~AddressSpace()
@@ -43,10 +43,10 @@ public:
 
 	AddressSpace &operator=(AddressSpace &&rhs)
 	{
-		if(this!=&rhs)
+		if(this != &rhs)
 		{
-			std::swap(m_Memory,rhs.m_Memory);
-			std::swap(m_Size,rhs.m_Size);
+			std::swap(m_Memory, rhs.m_Memory);
+			std::swap(m_Size, rhs.m_Size);
 		}
 
 		return *this;
@@ -74,7 +74,7 @@ public:
 	const Byte *pointerTo(Address address)const
 	{
 		checkIsValid(address);
-		return m_Memory+address;
+		return m_Memory + address;
 	}
 
 	/** Reads a byte */
@@ -90,7 +90,7 @@ public:
 	{
 		checkIsValid(address);
 
-		m_Memory[address]=value;
+		m_Memory[address] = value;
 	}
 
 	/** Reads a word */
@@ -98,9 +98,9 @@ public:
 	{
 		checkIsValid(address);
 
-		auto high=m_Memory[address];
-		auto low=m_Memory[address+1];
-		auto value=(high*256)+low;
+		auto high = m_Memory[address];
+		auto low = m_Memory[address+1];
+		auto value = (high * 256) + low;
 
 		return static_cast<Word>(value);
 	}
@@ -110,11 +110,11 @@ public:
 	{
 		checkIsValid(address);
 
-		Byte low=word & 0xff;
-		Byte high=word >> 8;
+		Byte low = word & 0xff;
+		Byte high = word >> 8;
 		
-		m_Memory[address]=high;
-		m_Memory[address+1]=low;
+		m_Memory[address] = high;
+		m_Memory[address + 1] = low;
 	}
 
 

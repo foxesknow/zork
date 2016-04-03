@@ -41,7 +41,7 @@ private:
 	std::array<Word,1024> m_Stack;
 
 	// NOTE: SP Always points to the next free location on the stack
-	unsigned int m_SP=0;
+	unsigned int m_SP = 0;
 
 public:
 
@@ -60,14 +60,14 @@ public:
 		auto sp=m_SP;
 
 		// Reserve space for local variables
-		m_SP+=numberOfLocals;
+		m_SP += numberOfLocals;
 
-		return FrameInfo(sp,returnAddress,resultVariable);
+		return FrameInfo(sp, returnAddress, resultVariable);
 	}
 
 	void revertToFrame(const FrameInfo &frameInfo)
 	{
-		if(frameInfo.getBase()>m_SP)
+		if(frameInfo.getBase() > m_SP)
 		{
 			throw Exception("cannot revert to a stack address greater than the current stack pointer");
 		}
@@ -77,16 +77,16 @@ public:
 
 	Word getLocal(const FrameInfo &frameInfo, unsigned int localIndex)const
 	{
-		auto zeroBasedIndex=localIndex-1;
-		auto location=frameInfo.getBase()+zeroBasedIndex;
+		auto zeroBasedIndex = localIndex - 1;
+		auto location = frameInfo.getBase() + zeroBasedIndex;
 		return m_Stack[location];
 	}
 
 	void setLocal(const FrameInfo &frameInfo, unsigned int localIndex, Word value)
 	{
-		auto zeroBasedIndex=localIndex-1;
-		auto location=frameInfo.getBase()+zeroBasedIndex;
-		m_Stack[location]=value;
+		auto zeroBasedIndex = localIndex - 1;
+		auto location = frameInfo.getBase() + zeroBasedIndex;
+		m_Stack[location] = value;
 	}
 };
 

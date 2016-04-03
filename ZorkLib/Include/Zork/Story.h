@@ -44,13 +44,13 @@ private:
 
 	Address increaseByteAddress(Address address, int amount)const
 	{
-		auto offset=sizeof(Byte)*amount;
-		return static_cast<Address>(address+offset);
+		auto offset = sizeof(Byte) * amount;
+		return static_cast<Address>(address + offset);
 	}
 
 	Address resolveWordAddress(Address address)const
 	{
-		return address*2;
+		return address * 2;
 	}
 
 	void resolveCharacter(std::string &text, const char *&alphabet, ZsciiReader &reader)const;
@@ -73,7 +73,7 @@ private:
 	Word readNextWord()
 	{
 		Word value=m_AddressSpace.readWord(m_PC);
-		m_PC=increaseWordAddress(m_PC,1);
+		m_PC=increaseWordAddress(m_PC, 1);
 		return value;
 	}
 

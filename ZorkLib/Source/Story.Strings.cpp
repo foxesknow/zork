@@ -37,7 +37,7 @@ namespace zork
 
 std::string Story::readString(Address normalizedAddress)const
 {
-	ZsciiReader reader(m_AddressSpace,normalizedAddress);
+	ZsciiReader reader(m_AddressSpace, normalizedAddress);
 	return readString(reader);	
 }
 
@@ -45,11 +45,11 @@ std::string Story::readString(ZsciiReader &reader)const
 {
 	std::string value;
 
-	auto alphabetTable=alphabetTable_A0;
+	auto alphabetTable = alphabetTable_A0;
 
 	do
 	{
-		resolveCharacter(value,alphabetTable,reader);
+		resolveCharacter(value, alphabetTable, reader);
 	}while(reader.moveNext());
 
 	return value;
@@ -57,30 +57,30 @@ std::string Story::readString(ZsciiReader &reader)const
 
 void Story::resolveCharacter(std::string &text, const char *&alphabet, ZsciiReader &reader)const
 {
-	int character=reader.getCurrent();
+	int character = reader.getCurrent();
 
-	if(character>5)
+	if(character > 5)
 	{
-		if(character==6 && alphabet==alphabetTable_A2)
+		if(character == 6 && alphabet == alphabetTable_A2)
 		{
 			reader.moveNext();
-			auto high=reader.getCurrent();
+			auto high = reader.getCurrent();
 
 			reader.moveNext();
-			auto low=reader.getCurrent();
+			auto low = reader.getCurrent();
 
-			auto zsciiCode=(high<<5)+low;
-			char c=static_cast<char>(zsciiCode);
-			if(c) text+=c;
+			auto zsciiCode = (high << 5) + low;
+			char c = static_cast<char>(zsciiCode);
+			if(c) text += c;
 		}
 		else
 		{
 			// It's not a shift character
-			char c=alphabet[character];
-			if(c) text+=c;
+			char c = alphabet[character];
+			if(c) text += c;
 		}
 
-		alphabet=alphabetTable_A0;
+		alphabet = alphabetTable_A0;
 	}
 	else
 	{
@@ -88,7 +88,7 @@ void Story::resolveCharacter(std::string &text, const char *&alphabet, ZsciiRead
 		switch(character)
 		{
 			case 0:
-				text+=' ';
+				text += ' ';
 				break;
 
 			case 1:
@@ -97,20 +97,20 @@ void Story::resolveCharacter(std::string &text, const char *&alphabet, ZsciiRead
 			{
 				reader.moveNext();
 				
-				int bank=character;
-				int offset=reader.getCurrent();
-				int index=(32*(bank-1))+offset;
-				text+=getAbbreviation(index);
+				int bank = character;
+				int offset = reader.getCurrent();
+				int index = (32 * (bank - 1)) +offset;
+				text += getAbbreviation(index);
 
 				break;
 			}				
 
 			case 4:
-				alphabet=alphabetTable_A1;
+				alphabet = alphabetTable_A1;
 				break;
 
 			case 5:
-				alphabet=alphabetTable_A2;
+				alphabet = alphabetTable_A2;
 				break;
 
 			default:

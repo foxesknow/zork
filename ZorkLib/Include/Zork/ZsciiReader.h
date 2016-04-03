@@ -19,15 +19,15 @@ private:
 private:
 	void update(Address address)
 	{
-		auto word=m_AddressSpace.readWord(address);
+		auto word = m_AddressSpace.readWord(address);
 
-		m_Chars[2]=word & 0x1f;
+		m_Chars[2] = word & 0x1f;
 		word >>= 5;
 
 		m_Chars[1]=word & 0x1f;
 		word >>= 5;
 
-		m_Chars[0]=word & 0x1f;
+		m_Chars[0] = word & 0x1f;
 		word >>= 5;
 		
 		m_AtEnd=word & 1;
@@ -57,7 +57,7 @@ public:
 		if(m_Index==3)
 		{
 			// Read the next word;
-			m_Address=increaseWordAddress(m_Address,1);
+			m_Address=increaseWordAddress(m_Address, 1);
 			update(m_Address);
 		}
 
