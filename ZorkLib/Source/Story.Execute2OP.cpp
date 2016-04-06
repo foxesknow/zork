@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <Zork\Story.h>
 
 namespace zork
@@ -82,16 +83,16 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 		case OP2_Opcodes::OP8: // or a b -> (result)
 		{
 			Word result = a | b;
-			auto variable = readVariableID();
-			storeVariable(variable, result);
+			auto variableID = readVariableID();
+			storeVariable(variableID, result);
 			break;
 		}
 
 		case OP2_Opcodes::OP9: // and a b -> (result)
 		{
 			Word result = a & b;
-			auto variable = readVariableID();
-			storeVariable(variable, result);
+			auto variableID = readVariableID();
+			storeVariable(variableID, result);
 			
 			break;
 		}
@@ -125,8 +126,8 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 
 		case OP2_Opcodes::OP13: // store
 		{
-			auto variable = static_cast<Byte>(a);
-			storeVariable(variable, b);
+			auto variableID = static_cast<Byte>(a);
+			storeVariable(variableID, b);
 			break;
 		}
 
@@ -145,8 +146,8 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			auto dataAddress = increaseWordAddress(baseAddress, b);
 			auto value = m_AddressSpace.readWord(dataAddress);
 
-			auto variable = readVariableID();
-			storeVariable(variable, value);
+			auto variableID = readVariableID();
+			storeVariable(variableID, value);
 			
 			break;
 		};
@@ -157,24 +158,67 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			Address dataAddress = baseAddress +  b;
 			auto value = m_AddressSpace.readByte(dataAddress);
 
-			auto variable = readVariableID();
-			storeVariable(variable, value);
+			auto variableID = readVariableID();
+			storeVariable(variableID, value);
 
 			break;
 		};
 
 		case OP2_Opcodes::OP17: // get_prop object property -> (result)
 		{
-			// TODO
-			ThrowNotImplemented();
+			auto variableID = readVariableID();
+			Word result = 0;
+			Word propertyID = b;
+
+			auto object = getObject(a);
+			auto allProperties = object.getAllPropertyBlocks();
+
+			auto it=std::find_if
+			(
+				allProperties.begin(), 
+				allProperties.end(), 
+				[propertyID](const PropertyBlock &block){return block.getID() == propertyID;}
+			);
+
+			if(it != allProperties.end())
+			{
+				const auto &block = (*it);
+				if(block.getSize() == 1)
+				{
+					result = m_AddressSpace.readByte(block.getAddress());
+				}
+				else if(block.getSize() == 2)
+				{
+					result = m_AddressSpace.readWord(block.getAddress());
+				}
+				else
+				{
+					// It's unspecified what to do, so fail
+					panic("cant read a property greater than 2 bytes");
+				}
+			}
+			else
+			{
+				// The object doesn't have this property, so get it from the defaults
+				if(propertyID < m_PropertyDefaults.size())
+				{
+					result = m_PropertyDefaults[propertyID];
+				}
+				else
+				{
+					panic("invalid default property id");
+				}
+			}
+
+			storeVariable(variableID, result);
 			break;
 		}
 
 		case OP2_Opcodes::OP20: // add a b -> (result)
 		{
 			SWord result = AsSignedWord(a) + AsSignedWord(b);
-			auto variable = readVariableID();
-			storeVariable(variable, AsWord(result));
+			auto variableID = readVariableID();
+			storeVariable(variableID, AsWord(result));
 			
 			break;
 		}
@@ -182,8 +226,8 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 		case OP2_Opcodes::OP21: // sub a b -> (result)
 		{
 			SWord result = AsSignedWord(a) - AsSignedWord(b);
-			auto variable = readVariableID();
-			storeVariable(variable, AsWord(result));
+			auto variableID = readVariableID();
+			storeVariable(variableID, AsWord(result));
 			
 			break;
 		}
@@ -191,8 +235,8 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 		case OP2_Opcodes::OP22: // mul a b -> (result)
 		{
 			SWord result = AsSignedWord(a) * AsSignedWord(b);
-			auto variable = readVariableID();
-			storeVariable(variable, AsWord(result));
+			auto variableID = readVariableID();
+			storeVariable(variableID, AsWord(result));
 			
 			break;
 		}
@@ -202,8 +246,8 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			if(b == 0) throw Exception("attempt to divide by 0");
 
 			SWord result = AsSignedWord(a) / AsSignedWord(b);
-			auto variable = readVariableID();
-			storeVariable(variable, AsWord(result));
+			auto variableID = readVariableID();
+			storeVariable(variableID, AsWord(result));
 			
 			break;
 		}
@@ -213,8 +257,8 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			if(b == 0) throw Exception("attempt to mod by 0");
 
 			const SWord result = AsSignedWord(a) % AsSignedWord(b);
-			auto variable = readVariableID();
-			storeVariable(variable, AsWord(result));
+			auto variableID = readVariableID();
+			storeVariable(variableID, AsWord(result));
 			
 			break;
 		}

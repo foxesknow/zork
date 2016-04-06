@@ -63,5 +63,10 @@ constexpr T versionThreeOrLess(int version, T ifTrue, T ifFalse)
 	return version <= 3 ? ifTrue : ifFalse;
 }
 
+inline void panic(const std::string &message)
+{
+	throw Exception(message);
+}
+
 
 } // End of namespace
