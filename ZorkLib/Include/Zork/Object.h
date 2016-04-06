@@ -19,6 +19,7 @@ private:
 	AddressSpace &m_AddressSpace;
 	Address m_Address;
 	bool m_V3OrLess;
+	Word m_ObjectID;
 
 	Object(const Object&)=delete;
 	Object &operator=(const Object&)=delete;
@@ -52,14 +53,72 @@ private:
 	 */
 	std::tuple<Address,int,int,bool> getPropertyBlockInfo(Address address)const;
 
+	void setParent(Word parentID)
+	{
+		Address address = (m_V3OrLess ? m_Address + 4 : m_Address + 6);
+		if(m_V3OrLess)
+		{
+			m_AddressSpace.writeByte(address, static_cast<Byte>(parentID));
+		}
+		else
+		{
+			m_AddressSpace.writeWord(address, parentID);
+		}
+	}
+
+	void setChild(Word childID)
+	{
+		Address address = (m_V3OrLess ? m_Address + 6 : m_Address + 10);
+		if(m_V3OrLess)
+		{
+			m_AddressSpace.writeByte(address,static_cast<Byte>(childID));
+		}
+		else
+		{
+			m_AddressSpace.writeWord(address,childID);
+		}
+	}
+
+	void setSibling(Word siblingID)
+	{
+		Address address = (m_V3OrLess ? m_Address + 5 : m_Address + 8);
+		if(m_V3OrLess)
+		{
+			m_AddressSpace.writeByte(address, static_cast<Byte>(siblingID));
+		}
+		else
+		{
+			m_AddressSpace.writeWord(address, siblingID);
+		}
+	}
+
 public:
-	Object(AddressSpace &addressSpace, Address address) : m_AddressSpace(addressSpace), m_Address(address)
+	Object(AddressSpace &addressSpace, Address address, Word objectID) : m_AddressSpace(addressSpace), m_Address(address), m_ObjectID(objectID)
 	{
 		m_V3OrLess = versionThreeOrLess(addressSpace.readByte(0), true, false);
 	}
 
 	Object(Object &&rhs) : m_AddressSpace(rhs.m_AddressSpace), m_Address(rhs.m_Address), m_V3OrLess(rhs.m_V3OrLess)
 	{
+	}
+
+	/** Makes object the child of this */
+	void insertObject(Object &childObject)
+	{
+		Word previousChild=getChild();
+
+		// The child of this will be set to childObject (so the parent of childObject will be this)
+		childObject.setParent(m_ObjectID);
+		setChild(childObject.getObjectID());
+
+		// The sibling of childObject will be whatever was the previous sibling.
+		// This was the effect of patching the child into the chain of siblings
+		childObject.setSibling(previousChild);
+	}
+
+	Word getObjectID()const
+	{
+		return m_ObjectID;
 	}
 
 	/** Returns the number of the parent, or 0 if no parent */

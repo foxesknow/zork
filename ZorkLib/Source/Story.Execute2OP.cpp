@@ -130,13 +130,14 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			break;
 		}
 
-		case OP2_Opcodes::OP14:
+		case OP2_Opcodes::OP14: // insert_obj object destination
 		{
-			// TODO
-			throw Exception("not implemented");
+			auto child = getObject(a);
+			auto parent = getObject(b);
+			parent.insertObject(child);
+
 			break;
 		}
-
 
 		case OP2_Opcodes::OP15: // loadw array word-index -> (result)
 		{
@@ -164,9 +165,8 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 
 		case OP2_Opcodes::OP17: // get_prop object property -> (result)
 		{
-			// TODO!
-			auto object = getObject(a);
-
+			// TODO
+			ThrowNotImplemented();
 			break;
 		}
 

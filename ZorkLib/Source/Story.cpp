@@ -92,14 +92,14 @@ Address Story::getObjectTreeBaseAddress()const
 	return objectTreeAddress;
 }
 
-Object Story::getObject(int objectID)const
+Object Story::getObject(Word objectID)const
 {
 	const auto objectTreeAddress = getObjectTreeBaseAddress();
 	const int entrySize = Object::getEntrySize(m_Version);
 
 	// objectIDs are 1 based
 	Address objectAddress = objectTreeAddress+((objectID - 1) * entrySize);
-	return Object(m_AddressSpace, objectAddress);
+	return Object(m_AddressSpace, objectAddress, objectID);
 }
 
 int Story::getNumberOfObjects()const

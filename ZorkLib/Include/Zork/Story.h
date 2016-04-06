@@ -34,6 +34,11 @@ private:
 
 
 private:
+	void ThrowNotImplemented() const
+	{
+		throw Exception("not implemented");
+	}
+
 	void buildAbbreviationCache();
 	const std::string &getAbbreviation(int id)const;
 	std::string readAbbreviation(int addreviationNumber)const;
@@ -98,7 +103,7 @@ public:
 	std::string readString(Address address)const;
 	std::string readString(ZsciiReader &reader)const;
 
-	Object getObject(int objectID)const;
+	Object getObject(Word objectID)const;
 
 	int getNumberOfObjects()const;
 
