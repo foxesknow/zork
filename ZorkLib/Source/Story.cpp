@@ -102,7 +102,7 @@ Object Story::getObject(Word objectID)const
 	return Object(m_AddressSpace, objectAddress, objectID);
 }
 
-int Story::getNumberOfObjects()const
+Word Story::getNumberOfObjects()const
 {
 	// There's no explicit count of the number of objects.
 	// However, the properties for the first object follow
@@ -114,7 +114,7 @@ int Story::getNumberOfObjects()const
 	auto entrySize = Object::getEntrySize(m_Version);
 
 	auto numberOfObjects = (lastObject - treeBase) / entrySize;
-	return numberOfObjects;
+	return static_cast<Word>(numberOfObjects);
 }
 
 void Story::parseObjectTable()
@@ -133,7 +133,7 @@ void Story::parseObjectTable()
 	// See page 65 of spec
 
 	auto numberOfObjects = getNumberOfObjects();
-	for(int i = 0; i < numberOfObjects; i++)
+	for(Word i = 0; i < numberOfObjects; i++)
 	{
 		Object object = getObject(i+1);
 		auto nameAddress = object.getNameAddress();

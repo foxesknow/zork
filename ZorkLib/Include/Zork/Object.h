@@ -51,7 +51,7 @@ private:
 	 * Returns information on the property block at the given address.
 	 * The tuple is (StartOfData, SizeOfData, PropertyNumber, Terminator)
 	 */
-	std::tuple<Address,int,int,bool> getPropertyBlockInfo(Address address)const;
+	std::tuple<Address,int,Word,bool> getPropertyBlockInfo(Address address)const;
 
 	void setParent(Word parentID)
 	{

@@ -3,7 +3,7 @@
 namespace zork
 {
 
-std::tuple<Address,int,int,bool> Object::getPropertyBlockInfo(Address address)const
+std::tuple<Address,int,Word,bool> Object::getPropertyBlockInfo(Address address)const
 {
 	// TODO: Handle version 4 and above!
 
@@ -31,7 +31,7 @@ std::tuple<Address,int,int,bool> Object::getPropertyBlockInfo(Address address)co
 
 		const Byte value=m_AddressSpace.readByte(address);
 
-		const auto propertyNumber = value & 63;
+		const Word propertyNumber = value & 63;
 		int size=0;
 
 		// If bit 7 is set then there a 2nd size byte

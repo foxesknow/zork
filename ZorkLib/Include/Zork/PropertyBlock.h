@@ -10,10 +10,10 @@ class PropertyBlock
 private:
 	Address m_Address;
 	int m_Size;
-	int m_ID;
+	Word m_ID;
 
 public:
-	PropertyBlock(Address address, int size, int ID) : m_Address(address), m_Size(size), m_ID(ID)
+	PropertyBlock(Address address, int size, Word ID) : m_Address(address), m_Size(size), m_ID(ID)
 	{
 	}
 
@@ -30,7 +30,7 @@ public:
 	}
 
 	/** The property block number(ID) */
-	int getID()const
+	Word getID()const
 	{
 		return m_ID;
 	}

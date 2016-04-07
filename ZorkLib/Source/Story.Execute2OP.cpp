@@ -64,15 +64,21 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			break;
 		}
 
-		case OP2_Opcodes::OP6: // jin
+		case OP2_Opcodes::OP6: // jin obj1 obj2 ?(label)
 		{
-			// TODO
-			throw Exception("not implemented");
+			// jump is obj1 is a direct child of obj2, i.e., if parent of obj1 is obj2
+			auto obj1 = getObject(a);
+
+			bool outcome = (obj1.getParent() == b);
+			auto branchDetails = readBranchDetails();
+			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+
 			break;
 		}
 
 		case OP2_Opcodes::OP7: // test bitmap flags ?(label)
 		{
+			// NOTE: All the flags of b must be set
 			bool outcome = ((a & b) == a);
 			auto branchDetails = readBranchDetails();
 			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
@@ -167,50 +173,24 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 		case OP2_Opcodes::OP17: // get_prop object property -> (result)
 		{
 			auto variableID = readVariableID();
-			Word result = 0;
-			Word propertyID = b;
+			executeOP2_OP17(a, b, variableID);
+			
+			break;
+		}
 
-			auto object = getObject(a);
-			auto allProperties = object.getAllPropertyBlocks();
+		case OP2_Opcodes::OP18: // get_prop_addr object property -> (result);
+		{
+			auto variableID = readVariableID();
+			executeOP2_OP18(a, b, variableID);
 
-			auto it=std::find_if
-			(
-				allProperties.begin(), 
-				allProperties.end(), 
-				[propertyID](const PropertyBlock &block){return block.getID() == propertyID;}
-			);
+			break;
+		}
 
-			if(it != allProperties.end())
-			{
-				const auto &block = (*it);
-				if(block.getSize() == 1)
-				{
-					result = m_AddressSpace.readByte(block.getAddress());
-				}
-				else if(block.getSize() == 2)
-				{
-					result = m_AddressSpace.readWord(block.getAddress());
-				}
-				else
-				{
-					// It's unspecified what to do, so fail
-					panic("cant read a property greater than 2 bytes");
-				}
-			}
-			else
-			{
-				// The object doesn't have this property, so get it from the defaults
-				if(propertyID < m_PropertyDefaults.size())
-				{
-					result = m_PropertyDefaults[propertyID];
-				}
-				else
-				{
-					panic("invalid default property id");
-				}
-			}
+		case OP2_Opcodes::OP19: // get_next_prop object property -> (result);
+		{
+			auto variableID = readVariableID();
+			executeOP2_OP19(a, b, variableID);
 
-			storeVariable(variableID, result);
 			break;
 		}
 
@@ -263,7 +243,116 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			break;
 		}
 	}
+}
 
+void Story::executeOP2_OP17(Word objectID, Word propertyID, Byte variableID)
+{
+	Word result = 0;
+	auto object = getObject(objectID);
+	auto allProperties = object.getAllPropertyBlocks();
+
+	auto it = std::find_if
+	(
+		allProperties.begin(),
+		allProperties.end(),
+		[propertyID](const PropertyBlock &block) {return block.getID() == propertyID;}
+	);
+
+	if(it != allProperties.end())
+	{
+		const auto &block = (*it);
+		if(block.getSize() == 1)
+		{
+			result = m_AddressSpace.readByte(block.getAddress());
+		}
+		else if(block.getSize() == 2)
+		{
+			result = m_AddressSpace.readWord(block.getAddress());
+		}
+		else
+		{
+			// It's unspecified what to do, so fail
+			panic("cant read a property greater than 2 bytes");
+		}
+	}
+	else
+	{
+		// The object doesn't have this property, so get it from the defaults
+		if(propertyID < m_PropertyDefaults.size())
+		{
+			result = m_PropertyDefaults[propertyID];
+		}
+		else
+		{
+			panic("invalid default property id");
+		}
+	}
+
+	storeVariable(variableID, result);
+}
+
+void Story::executeOP2_OP18(Word objectID, Word propertyID, Byte variableID)
+{
+	auto object = getObject(objectID);
+	auto allProperties = object.getAllPropertyBlocks();
+
+	auto it = std::find_if
+	(
+		allProperties.begin(),
+		allProperties.end(),
+		[propertyID](const PropertyBlock &block) {return block.getID() == propertyID;}
+	);
+
+	if(it != allProperties.end())
+	{
+		storeVariable(variableID, static_cast<Word>((*it).getAddress()));
+	}
+	else
+	{
+		// If the property doesn't exist then we store 0
+		storeVariable(variableID, 0);
+	}
+}
+
+void Story::executeOP2_OP19(Word objectID, Word propertyID, Byte variableID)
+{
+	Word result = 0;
+	auto object = getObject(objectID);
+	auto allProperties = object.getAllPropertyBlocks();
+
+	if(propertyID == 0)
+	{
+		// This means get the first property number
+		if(allProperties.size() == 0) panic("op2_op19: no properties");
+
+		result = allProperties[0].getID();
+	}
+	else
+	{
+		auto it = std::find_if
+		(
+			allProperties.begin(),
+			allProperties.end(),
+			[propertyID](const PropertyBlock &block) {return block.getID() == propertyID; }
+		);
+
+		// It's an error to request a property that doesn't exist
+		if(it == allProperties.end()) panic("op2_op19: property does not exist");
+
+		// We want the property after the one that matches the supplied id
+		++it;
+		if(it != allProperties.end())
+		{
+			result = (*it).getID();
+		}
+		else
+		{
+			// There aren't any more left, so the ID is 0
+			result = 0;
+		}
+	}
+
+	storeVariable(variableID, result);
 }
 
 } // end of namespace

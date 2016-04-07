@@ -67,6 +67,10 @@ private:
 	void executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2);
 	void executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 
+	void executeOP2_OP17(Word objectID, Word propertyID, Byte variableID);
+	void executeOP2_OP18(Word objectID, Word propertyID, Byte variableID);
+	void executeOP2_OP19(Word objectID, Word propertyID, Byte variableID);
+
 	void storeVariable(Byte variableID, Word value);
 	Word loadVariable(Byte variableID);
 
@@ -105,7 +109,7 @@ public:
 
 	Object getObject(Word objectID)const;
 
-	int getNumberOfObjects()const;
+	Word getNumberOfObjects()const;
 
 	void executeNextInstruction();
 	OpcodeDetails decode(OpcodeForm &opcodeForm, OperandCount &operandCount);
