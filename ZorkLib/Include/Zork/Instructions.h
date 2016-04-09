@@ -234,6 +234,42 @@ enum class OP2_Opcodes
 	OP28,	// (v5/6) throw
 };
 
+enum class VAR_Opcodes
+{
+	OP0,	// (v1) call, (v4) call_vs
+	OP1,	// storew
+	OP2,	// storeb
+	OP3,	// put_prop
+	OP4,	// (v1) sread, (v4) sread, (v5) aread
+	OP5,	// print_char
+	OP6,	// print_num
+	OP7,	// random
+	OP8,	// push
+	OP9,	// (v1) pull, (v6) pull
+	OP10,	// (v3) split_window
+	OP11,	// (v3) set_window
+	OP12,	// (v4) call_vs2
+	OP13,	// (v4) erase_window
+	OP14,	// (v4/-) erase_line
+	OP15,	// (v4) set_cursor, (v6) set_cursor
+	OP16,	// (v4) get_cursor
+	OP17,	// (v4) set_text_style
+	OP18,	// (v4) buffer_mode
+	OP19,	// (v3) output_stream, (v5) output_stream, (v6) output_stream
+	OP20,	// (v3) input_stream
+	OP21,	// (v5/3) sound_effect
+	OP22,	// (v4) read_char
+	OP23,	// (v4) scan_table
+	OP24,	// (v5/6) not
+	OP25,	// (v5) call_vn
+	OP26,	// (v5) call_vn2
+	OP27,	// (v5) tokenize
+	OP28,	// (v5) encode_text
+	OP29,	// (v5) copy_table
+	OP30,	// (v5) print_table
+	OP31,	// (v5) check_arg_count
+};
+
 
 class BranchDetails
 {
