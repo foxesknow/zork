@@ -21,7 +21,6 @@ Story::Story(AddressSpace &&addressSpace) : m_AddressSpace(std::move(addressSpac
 
 	buildAbbreviationCache();
 	buildDictionary();
-	parseObjectTable();
 }
 
 void Story::buildAbbreviationCache()
@@ -38,7 +37,7 @@ std::string Story::readAbbreviation(int addreviationNumber)const
 	auto abbereviationTableBase = m_AddressSpace.readWord(0x18);
 
 	auto abbreviationAddress = increaseWordAddress(abbereviationTableBase, addreviationNumber);
-	auto stringPointer = resolveWordAddress(m_AddressSpace.readWord(abbreviationAddress));
+	auto stringPointer = 2 * m_AddressSpace.readWord(abbreviationAddress);
 
 	return readString(stringPointer);
 }
@@ -83,6 +82,18 @@ void Story::buildDictionary()
 	}
 }
 
+Word Story::getDefaultProperty(Word propertyID)const
+{
+	auto objectTableAddress = m_AddressSpace.readWord(0x0a);
+	auto location = increaseWordAddress(objectTableAddress, propertyID);
+	return m_AddressSpace.readWord(location);
+}
+
+Word Story::getNumberOfDefaultProperties()const
+{
+	return versionThreeOrLess<Word>(m_Version, 31, 63);
+}
+
 Address Story::getObjectTreeBaseAddress()const
 {
 	auto objectTableAddress = m_AddressSpace.readWord(0x0a);
@@ -116,38 +127,5 @@ Word Story::getNumberOfObjects()const
 	auto numberOfObjects = (lastObject - treeBase) / entrySize;
 	return static_cast<Word>(numberOfObjects);
 }
-
-void Story::parseObjectTable()
-{
-	auto objectTableAddress = m_AddressSpace.readWord(0x0a);
-
-	// First, read the defaults
-	const int numberOfDefaults = versionThreeOrLess(m_Version, 31, 63);
-	for(int i = 0; i < numberOfDefaults; i++)
-	{
-		auto address = increaseWordAddress(objectTableAddress, i);
-		auto value = m_AddressSpace.readWord(address);
-		m_PropertyDefaults.push_back(value);
-	}
-
-	// See page 65 of spec
-
-	auto numberOfObjects = getNumberOfObjects();
-	for(Word i = 0; i < numberOfObjects; i++)
-	{
-		Object object = getObject(i+1);
-		auto nameAddress = object.getNameAddress();
-		auto name = readString(nameAddress);
-
-		auto allProps = object.getAllPropertyBlocks();
-
-		std::cout	<< object.getParent() << " " 
-					<< object.getSibling() << " "
-					<< object.getChild() << " "
-					<< name
-					<< std::endl;
-	}
-}
-
 
 } // end of namespace

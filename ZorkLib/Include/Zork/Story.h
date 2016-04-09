@@ -30,9 +30,6 @@ private:
 	std::map<int,std::string> m_Abbreviations;
 	std::set<std::string> m_Dictionary;
 
-	std::vector<Word> m_PropertyDefaults;
-
-
 private:
 	void ThrowNotImplemented() const
 	{
@@ -45,22 +42,13 @@ private:
 
 	void buildDictionary();
 
-	void parseObjectTable();
-
-	Address increaseByteAddress(Address address, int amount)const
-	{
-		auto offset = sizeof(Byte) * amount;
-		return static_cast<Address>(address + offset);
-	}
-
-	Address resolveWordAddress(Address address)const
-	{
-		return address * 2;
-	}
 
 	void resolveCharacter(std::string &text, const char *&alphabet, ZsciiReader &reader)const;
 
 	Address getObjectTreeBaseAddress()const;
+
+	Word getDefaultProperty(Word propertyID)const;
+	Word getNumberOfDefaultProperties()const;
 
 	void executeOP0(OpcodeDetails opcodeDetails);
 	void executeOP1(OpcodeDetails opcodeDetails, OperandType type1);

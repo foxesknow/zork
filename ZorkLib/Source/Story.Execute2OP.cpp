@@ -278,9 +278,9 @@ void Story::executeOP2_OP17(Word objectID, Word propertyID, Byte variableID)
 	else
 	{
 		// The object doesn't have this property, so get it from the defaults
-		if(propertyID < m_PropertyDefaults.size())
+		if(propertyID < getNumberOfDefaultProperties())
 		{
-			result = m_PropertyDefaults[propertyID];
+			result = getDefaultProperty(propertyID);
 		}
 		else
 		{
