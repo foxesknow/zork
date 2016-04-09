@@ -12,10 +12,10 @@ class StackFrame
 private:
 	unsigned int m_Base;
 	Address m_ReturnAddress;
-	Byte m_ResultVariable;
+	Word m_ResultVariable;
 
 public:
-	StackFrame(unsigned int base, Address returnAddress, Byte resultVariable) : m_Base(base), m_ReturnAddress(returnAddress), m_ResultVariable(resultVariable)
+	StackFrame(unsigned int base, Address returnAddress, Word resultVariable) : m_Base(base), m_ReturnAddress(returnAddress), m_ResultVariable(resultVariable)
 	{
 	}
 
@@ -29,7 +29,7 @@ public:
 		return m_ReturnAddress;
 	}
 
-	Byte getResultVariable()const
+	Word getResultVariable()const
 	{
 		return m_ResultVariable;
 	}
@@ -55,7 +55,7 @@ public:
 		return m_Stack[--m_SP];
 	}
 
-	StackFrame allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Byte resultVariable)
+	StackFrame allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Word resultVariable)
 	{
 		auto sp=m_SP;
 

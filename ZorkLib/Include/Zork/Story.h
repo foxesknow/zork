@@ -42,6 +42,8 @@ private:
 
 	void buildDictionary();
 
+	Address expandPackedAddress(Address address)const;
+
 
 	void resolveCharacter(std::string &text, const char *&alphabet, ZsciiReader &reader)const;
 
@@ -86,7 +88,12 @@ private:
 	void applyBranch(const BranchDetails &branchDetails);
 	void applyBranch(SWord offset);
 
+	void callRoutine(Address routineAddress, Word returnVariable, const std::vector<Word> &arguments);
 	void returnFromCall(Word result);
+	std::vector<Word> createArguments(std::initializer_list<Word> arguments)
+	{
+		return std::vector<Word>(arguments);
+	}
 
 public:
 	Story(AddressSpace &&addressSpace);

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <Zork\Story.h>
 
 namespace zork
@@ -229,6 +230,54 @@ void Story::applyBranch(SWord offset)
 	}
 }
 
+void Story::callRoutine(Address routineAddress, Word returnVariable, const std::vector<Word> &arguments)
+{
+	// NOTE: special case! A call to address 0 means return false!
+	if(routineAddress == 0)
+	{
+		returnFromCall(0);
+		return; // NOTE: Early return
+	}
+
+	Address returnAddress = m_PC;
+
+	auto normalizedAddress = expandPackedAddress(routineAddress);
+	auto numberOfLocals = m_AddressSpace.readByte(normalizedAddress);
+
+	auto stackFrame = m_StackSpace.allocateNewFrame(returnAddress, numberOfLocals, returnVariable);
+	m_Frames.push(stackFrame);
+
+	// Point to the new routine
+	m_PC = normalizedAddress;
+
+	// The local default values are stored next
+	if(m_Version <= 4)
+	{
+		// The defaults are next
+		for(Byte i = 0; i < numberOfLocals; i++)
+		{
+			auto value = readNextWord();
+			storeVariable(i + 1, value);
+		}
+	}
+	else
+	{
+		// They all default to 0
+		for(Byte i = 0; i < numberOfLocals; i++)
+		{
+			storeVariable(i + 1, 0);
+		}
+	}
+
+	// Now layer the arguments on top
+	auto argumentsToCopy = std::min(numberOfLocals, static_cast<Byte>(arguments.size()));
+	for(Byte i = 0; i < argumentsToCopy; i++)
+	{
+		storeVariable(i + 1, arguments[i]);
+	}
+
+}
+
 void Story::returnFromCall(Word result)
 {
 	// First up, put the stack and PC back to what they should be
@@ -240,7 +289,11 @@ void Story::returnFromCall(Word result)
 
 	// The result goes back into a variable...
 	auto resultVariableID = returnFrame.getResultVariable();
-	storeVariable(resultVariableID, result);
+	
+	if(resultVariableID != DiscardResultsVariable)
+	{
+		storeVariable(static_cast<Byte>(resultVariableID), result);
+	}
 }
 
 

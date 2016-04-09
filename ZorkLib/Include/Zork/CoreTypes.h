@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <limits>
 
 namespace zork
 {
@@ -26,6 +27,8 @@ const Byte BeginLocal = 1;
 const Byte EndLocal = 15;
 const Byte BeginGlobal = 16;
 const Byte EndGlobal = 255;
+
+const Word DiscardResultsVariable = std::numeric_limits<Word>::max();
 
 // There time when we might need to generate a zscii null
 // This is an end of string marker (the first one) followed by 3 5s

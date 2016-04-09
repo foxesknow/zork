@@ -242,6 +242,53 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			
 			break;
 		}
+
+		case OP2_Opcodes::OP25: // call_2s routine arg1 -> (result);
+		{
+			if(m_Version >= 4)
+			{
+				auto variableID = readVariableID();
+				auto arguments = createArguments({b});
+				callRoutine(a, variableID, arguments);
+			}
+			else
+			{
+				panic("call_2s requires v4 or above");
+			}
+
+			break;
+		}
+
+		case OP2_Opcodes::OP26: // call_2n routine arg1
+		{
+			if(m_Version >= 5)
+			{
+				auto arguments = createArguments({b});
+				callRoutine(a, DiscardResultsVariable, arguments);
+			}
+			else
+			{
+				panic("call_2n requires v5 or above");
+			}
+
+			break;
+		}
+
+		case OP2_Opcodes::OP27: // set_color
+		{
+			panic("op2_op27 not implemented");
+			break;
+		}
+
+		case OP2_Opcodes::OP28: // throw
+		{
+			panic("op2_op28 not implemented");
+			break;
+		}
+
+		default:
+			panic("unsupported op2 opcode");
+			break;
 	}
 }
 
