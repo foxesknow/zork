@@ -21,7 +21,7 @@ private:
 
 	mutable AddressSpace m_AddressSpace;
 	StackSpace m_StackSpace;
-	std::stack<FrameInfo> m_Frames;
+	std::stack<StackFrame> m_Frames;
 	
 	Address m_StaticBase;
 	Address m_GlobalVariablesTable;

@@ -7,7 +7,7 @@
 namespace zork
 {
 
-class FrameInfo
+class StackFrame
 {
 private:
 	unsigned int m_Base;
@@ -15,7 +15,7 @@ private:
 	Byte m_ResultVariable;
 
 public:
-	FrameInfo(unsigned int base, Address returnAddress, Byte resultVariable) : m_Base(base), m_ReturnAddress(returnAddress), m_ResultVariable(resultVariable)
+	StackFrame(unsigned int base, Address returnAddress, Byte resultVariable) : m_Base(base), m_ReturnAddress(returnAddress), m_ResultVariable(resultVariable)
 	{
 	}
 
@@ -55,17 +55,17 @@ public:
 		return m_Stack[--m_SP];
 	}
 
-	FrameInfo allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Byte resultVariable)
+	StackFrame allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Byte resultVariable)
 	{
 		auto sp=m_SP;
 
 		// Reserve space for local variables
 		m_SP += numberOfLocals;
 
-		return FrameInfo(sp, returnAddress, resultVariable);
+		return StackFrame(sp, returnAddress, resultVariable);
 	}
 
-	void revertToFrame(const FrameInfo &frameInfo)
+	void revertToFrame(const StackFrame &frameInfo)
 	{
 		if(frameInfo.getBase() > m_SP)
 		{
@@ -75,14 +75,14 @@ public:
 		m_SP=frameInfo.getBase();
 	}
 
-	Word getLocal(const FrameInfo &frameInfo, unsigned int localIndex)const
+	Word getLocal(const StackFrame &frameInfo, unsigned int localIndex)const
 	{
 		auto zeroBasedIndex = localIndex - 1;
 		auto location = frameInfo.getBase() + zeroBasedIndex;
 		return m_Stack[location];
 	}
 
-	void setLocal(const FrameInfo &frameInfo, unsigned int localIndex, Word value)
+	void setLocal(const StackFrame &frameInfo, unsigned int localIndex, Word value)
 	{
 		auto zeroBasedIndex = localIndex - 1;
 		auto location = frameInfo.getBase() + zeroBasedIndex;
