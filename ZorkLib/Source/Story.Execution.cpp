@@ -60,10 +60,6 @@ void Story::executeNextInstruction()
 	}
 }
 
-void Story::executeOP0(OpcodeDetails opcodeDetails)
-{
-}
-
 void Story::executeOP1(OpcodeDetails opcodeDetails, OperandType type1)
 {
 }
@@ -293,6 +289,19 @@ void Story::returnFromCall(Word result)
 	if(resultVariableID != DiscardResultsVariable)
 	{
 		storeVariable(static_cast<Byte>(resultVariableID), result);
+	}
+}
+
+void Story::unwindToFrame(Word frameID)
+{
+	if(frameID > m_Frames.size())
+	{
+		panic("cannot unwind to a frame which does not exist");
+	}
+
+	while(m_Frames.size() != frameID)
+	{
+		m_Frames.pop();
 	}
 }
 

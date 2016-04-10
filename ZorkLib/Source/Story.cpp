@@ -8,7 +8,7 @@
 namespace zork
 {
 
-Story::Story(AddressSpace &&addressSpace) : m_AddressSpace(std::move(addressSpace))
+Story::Story(AddressSpace &&addressSpace, std::shared_ptr<Console> console) : m_AddressSpace(std::move(addressSpace)), m_Console(console)
 {
 	// NOTE: header layout on page 61
 
@@ -155,6 +155,27 @@ Address Story::expandPackedAddress(Address address)const
 		default:
 			panic("unsupported version");
 			return 0;
+	}
+}
+
+int Story::getFileSize() const
+{
+	int size = m_AddressSpace.readWord(0x1a);
+
+	// The size is actually divided by a constant, depending on the version
+	switch(m_Version)
+	{
+		case 1:
+		case 2:
+		case 3:
+			return size * 2;
+	
+		case 4:
+		case 5:
+			return size * 4;
+
+		default:
+			return size * 8;
 	}
 }
 

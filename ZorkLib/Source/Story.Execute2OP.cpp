@@ -280,9 +280,10 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			break;
 		}
 
-		case OP2_Opcodes::OP28: // throw
+		case OP2_Opcodes::OP28: // throw value stack-frame
 		{
-			panic("op2_op28 not implemented");
+			unwindToFrame(b);
+			returnFromCall(a);
 			break;
 		}
 

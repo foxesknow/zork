@@ -47,17 +47,17 @@ public:
 
 	bool moveNext()
 	{
-		if(m_AtEnd && m_Index==2)
+		if(m_AtEnd && m_Index == 2)
 		{
 			return false;
 		}
 
 		m_Index++;
 
-		if(m_Index==3)
+		if(m_Index == 3)
 		{
 			// Read the next word;
-			m_Address=increaseWordAddress(m_Address, 1);
+			m_Address = increaseWordAddress(m_Address, 1);
 			update(m_Address);
 		}
 
@@ -67,6 +67,11 @@ public:
 	int getCurrent()const
 	{
 		return m_Chars[m_Index];
+	}
+
+	Address getAddress()const
+	{
+		return m_Address;
 	}
 };
 

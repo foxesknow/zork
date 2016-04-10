@@ -4,12 +4,14 @@
 #include <set>
 #include <vector>
 #include <stack>
+#include <memory>
 
 #include <Zork\AddressSpace.h>
 #include <Zork\StackSpace.h>
 #include <Zork\ZsciiReader.h>
 #include <Zork\Object.h>
 #include <Zork\Instructions.h>
+#include <Zork\Console.h>
 
 namespace zork
 {
@@ -17,9 +19,11 @@ namespace zork
 class Story
 {
 private:
-	Byte m_Version;
-
 	mutable AddressSpace m_AddressSpace;
+	std::shared_ptr<Console> m_Console;
+
+	Byte m_Version;
+	
 	StackSpace m_StackSpace;
 	std::stack<StackFrame> m_Frames;
 	
@@ -35,6 +39,8 @@ private:
 	{
 		throw Exception("not implemented");
 	}
+
+	int getFileSize() const;
 
 	void buildAbbreviationCache();
 	const std::string &getAbbreviation(int id)const;
@@ -56,6 +62,8 @@ private:
 	void executeOP1(OpcodeDetails opcodeDetails, OperandType type1);
 	void executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2);
 	void executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+
+	void executeOP0_OP185();
 
 	void executeOP2_OP17(Word objectID, Word propertyID, Byte variableID);
 	void executeOP2_OP18(Word objectID, Word propertyID, Byte variableID);
@@ -90,13 +98,21 @@ private:
 
 	void callRoutine(Address routineAddress, Word returnVariable, const std::vector<Word> &arguments);
 	void returnFromCall(Word result);
+	void unwindToFrame(Word frameID);
+
 	std::vector<Word> createArguments(std::initializer_list<Word> arguments)
 	{
 		return std::vector<Word>(arguments);
 	}
 
+	Story(const Story &) = delete;
+	Story(Story &&) = delete;
+	Story &operator=(const Story &) = delete;
+	Story &operator=(Story &&) = delete;
+
 public:
-	Story(AddressSpace &&addressSpace);
+	Story(AddressSpace &&addressSpace, std::shared_ptr<Console> console);
+	
 
 	// For now...
 	std::string readString(Address address)const;

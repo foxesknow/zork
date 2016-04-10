@@ -10,6 +10,7 @@
 #include <Zork\Story.h>
 #include <Zork\StackSpace.h>
 #include <Zork\Instructions.h>
+#include <Zork\Console.h>
 
 int main()
 {
@@ -19,9 +20,10 @@ int main()
 	//std::string filename="D:\\Git\\zork\\StoryFiles\\Zork\\zork2.z3";
 	//std::string filename="D:\\Git\\zork\\StoryFiles\\moonmist\\moonmist.z5";
 
-	AddressSpace addressSpace=zork::loadAddressSpaceFromFile(filename);
+	AddressSpace addressSpace = zork::loadAddressSpaceFromFile(filename);
+	auto console = std::make_shared<TextConsole>();
 
-	Story story(std::move(addressSpace));
+	Story story(std::move(addressSpace), console);
 
 	//auto s=story.readString(0xb106);
 	//std::cout << s << std::endl;
