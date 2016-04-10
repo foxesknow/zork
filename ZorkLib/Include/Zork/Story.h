@@ -62,6 +62,7 @@ private:
 	void executeOP1(OpcodeDetails opcodeDetails, OperandType type1);
 	void executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2);
 	void executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void executeEXT(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 
 	void executeOP0_OP185();
 

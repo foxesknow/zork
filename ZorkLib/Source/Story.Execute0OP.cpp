@@ -118,6 +118,35 @@ void Story::executeOP0(OpcodeDetails opcodeDetails)
 
 			break;
 		}
+
+		case OP0_Opcodes::OP190:
+		{
+			// We shouldn't get here as executeNextInstruction should have handled this
+			panic("op0_op190 should have been handled by executeNextInstruction");
+			break;
+		}
+
+		case OP0_Opcodes::OP191: // piracy ?(label)
+		{
+			if(m_Version >= 5)
+			{
+				bool genuine = true;
+				auto branchDetails = readBranchDetails();
+				if(branchDetails.shouldBranch(genuine)) applyBranch(branchDetails);
+			}
+			else
+			{
+				panic("op0_op191 not supported in this version");
+			}
+
+			break;
+		}
+
+		default:
+		{
+			ThrowNotImplemented();
+			break;
+		}
 	}
 }
 

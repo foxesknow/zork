@@ -43,7 +43,14 @@ void Story::executeNextInstruction()
 	switch(operandCount)
 	{
 		case OperandCount::OP0:
-			executeOP0(opcodeDetails);
+			if(opcodeForm == OpcodeForm::Extended)
+			{
+				executeEXT(opcodeDetails, type1, type2, type3, type4);
+			}
+			else
+			{
+				executeOP0(opcodeDetails);
+			}
 			break;
 
 		case OperandCount::OP1:
@@ -68,6 +75,9 @@ void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 {
 }
 
+void Story::executeEXT(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
+{
+}
 
 void Story::storeVariable(Byte variableID, Word value)
 {
