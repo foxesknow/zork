@@ -165,6 +165,7 @@
     <ClCompile Include="..\..\ZorkLib\Source\Object.cpp" />
     <ClCompile Include="..\..\ZorkLib\Source\Story.cpp" />
     <ClCompile Include="..\..\ZorkLib\Source\Story.Execute0OP.cpp" />
+    <ClCompile Include="..\..\ZorkLib\Source\Story.Execute1OP.cpp" />
     <ClCompile Include="..\..\ZorkLib\Source\Story.Execute2OP.cpp" />
     <ClCompile Include="..\..\ZorkLib\Source\Story.Execution.cpp" />
     <ClCompile Include="..\..\ZorkLib\Source\Story.Strings.cpp" />

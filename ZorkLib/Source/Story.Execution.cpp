@@ -67,10 +67,6 @@ void Story::executeNextInstruction()
 	}
 }
 
-void Story::executeOP1(OpcodeDetails opcodeDetails, OperandType type1)
-{
-}
-
 void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
 {
 }
