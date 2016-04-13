@@ -51,6 +51,27 @@ void Story::executeOP1(OpcodeDetails opcodeDetails, OperandType type1)
 			break;
 		}
 
+		case OP1_Opcodes::OP138: // print_obj object
+		{
+			auto object = getObject(a);
+			auto text = readString(object.getNameAddress());
+			m_Console->print(text);
+			break;
+		}
+
+		case OP1_Opcodes::OP139: // ret value
+		{
+			returnFromCall(a);
+			break;
+		}
+
+		case OP1_Opcodes::OP140: // jump ?(label)
+		{
+			auto offset = AsSignedWord(a);
+			applyBranch(offset);
+			break;
+		}
+
 		case OP1_Opcodes::OP141: // print_paddr address
 		{
 			auto expandedAddress = expandPackedStringAddress(a);
