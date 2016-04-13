@@ -130,7 +130,7 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			break;
 		}
 
-		case OP2_Opcodes::OP13: // store
+		case OP2_Opcodes::OP13: // store (variable) value
 		{
 			auto variableID = static_cast<Byte>(a);
 			storeVariable(variableID, b);

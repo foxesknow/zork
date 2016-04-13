@@ -243,7 +243,7 @@ void Story::callRoutine(Address routineAddress, Word returnVariable, const std::
 
 	Address returnAddress = m_PC;
 
-	auto normalizedAddress = expandPackedAddress(routineAddress);
+	auto normalizedAddress = expandPackedRoutineAddress(routineAddress);
 	auto numberOfLocals = m_AddressSpace.readByte(normalizedAddress);
 
 	auto stackFrame = m_StackSpace.allocateNewFrame(returnAddress, numberOfLocals, returnVariable);

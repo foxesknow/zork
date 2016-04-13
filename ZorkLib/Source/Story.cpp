@@ -128,7 +128,7 @@ Word Story::getNumberOfObjects()const
 	return static_cast<Word>(numberOfObjects);
 }
 
-Address Story::expandPackedAddress(Address address)const
+Address Story::expandPackedRoutineAddress(Address address)const
 {
 	switch(m_Version)
 	{
@@ -157,6 +157,37 @@ Address Story::expandPackedAddress(Address address)const
 			return 0;
 	}
 }
+
+Address Story::expandPackedStringAddress(Address address)const
+{
+	switch(m_Version)
+	{
+		case 1:
+		case 2:
+		case 3:
+			return address * 2;
+
+		case 4:
+		case 5:
+			return address * 4;
+
+		case 6:
+		case 7:
+		{
+			// We need to use the string offset
+			Word routineOffset = m_AddressSpace.readWord(0x2a);
+			return (address * 4) + (8 * routineOffset);
+		}
+
+		case 8:
+			return address * 8;
+
+		default:
+			panic("unsupported version");
+			return 0;
+	}
+}
+
 
 int Story::getFileSize() const
 {

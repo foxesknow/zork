@@ -48,7 +48,8 @@ private:
 
 	void buildDictionary();
 
-	Address expandPackedAddress(Address address)const;
+	Address expandPackedRoutineAddress(Address address)const;
+	Address expandPackedStringAddress(Address address)const;
 
 
 	void resolveCharacter(std::string &text, const char *&alphabet, ZsciiReader &reader)const;
