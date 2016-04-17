@@ -116,6 +116,13 @@ public:
 		childObject.setSibling(previousChild);
 	}
 
+	/** Removes the child object from the object */
+	void removeChild(Object &childObject)
+	{
+		childObject.setParent(0);
+	}
+
+	/** Returns the ID of the object */
 	Word getObjectID()const
 	{
 		return m_ObjectID;

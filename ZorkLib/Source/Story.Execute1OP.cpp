@@ -1,4 +1,5 @@
 #include <Zork\Story.h>
+#include <vector>
 
 namespace zork
 {
@@ -48,6 +49,20 @@ void Story::executeOP1(OpcodeDetails opcodeDetails, OperandType type1)
 		{
 			auto text = readString(a);
 			m_Console->print(text);
+			break;
+		}
+
+		case OP1_Opcodes::OP136: // call_1s routine -> (result)
+		{
+			auto variableID = readVariableID();
+			callRoutine(a, variableID, createArguments({}));
+
+			break;
+		}
+
+		case OP1_Opcodes::OP137: // remove_obj object
+		{
+			ThrowNotImplemented();
 			break;
 		}
 
