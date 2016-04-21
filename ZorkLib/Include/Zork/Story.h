@@ -5,6 +5,7 @@
 #include <vector>
 #include <stack>
 #include <memory>
+#include <sstream>
 
 #include <Zork\AddressSpace.h>
 #include <Zork\StackSpace.h>
@@ -37,7 +38,9 @@ private:
 private:
 	void ThrowNotImplemented() const
 	{
-		throw Exception("not implemented");
+		std::stringstream stream;
+		stream << "not implemented - PC = " << std::hex << m_PC;
+		throw Exception(stream.str());
 	}
 
 	int getFileSize() const;
@@ -91,6 +94,14 @@ private:
 		return readNextByte();
 	}
 
+	StackFrame allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Word returnVariable)
+	{
+		auto stackFrame = m_StackSpace.allocateNewFrame(returnAddress, numberOfLocals, returnVariable);
+		m_Frames.push(stackFrame);
+
+		return stackFrame;
+	}
+
 	Word read(OperandType operandType);
 
 	BranchDetails readBranchDetails();
@@ -124,6 +135,7 @@ public:
 
 	Word getNumberOfObjects()const;
 
+	void run();
 	void executeNextInstruction();
 	OpcodeDetails decode(OpcodeForm &opcodeForm, OperandCount &operandCount);
 	

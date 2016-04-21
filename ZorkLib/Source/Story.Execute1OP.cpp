@@ -21,6 +21,43 @@ void Story::executeOP1(OpcodeDetails opcodeDetails, OperandType type1)
 			break;
 		}
 
+		case OP1_Opcodes::OP129: // get_sibling object -> (result) ? (label);
+		{
+			auto variableID = readVariableID();
+			auto branchDetails = readBranchDetails();
+
+			auto object = getObject(a);
+			auto sibling = object.getSibling();
+			storeVariable(variableID, sibling);
+
+			if(branchDetails.shouldBranch(sibling != 0)) applyBranch(branchDetails);
+			break;
+		}
+
+		case OP1_Opcodes::OP130: // get_child object -> (result) ?(label)
+		{
+			auto variableID = readVariableID();
+			auto branchDetails = readBranchDetails();
+
+			auto object = getObject(a);
+			auto child = object.getChild();
+			storeVariable(variableID, child);
+
+			if(branchDetails.shouldBranch(child != 0)) applyBranch(branchDetails);
+			break;
+		}
+
+		case OP1_Opcodes::OP131: // get_parent object -> (result)
+		{
+			auto variableID = readVariableID();
+			auto branchDetails = readBranchDetails();
+
+			auto object = getObject(a);
+			auto parent = object.getParent();
+			storeVariable(variableID, parent);
+			break;
+		}
+
 		case OP1_Opcodes::OP133: // inc (variable)
 		{
 			auto variableID = static_cast<Byte>(a);

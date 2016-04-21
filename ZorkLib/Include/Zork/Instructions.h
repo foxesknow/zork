@@ -81,6 +81,11 @@ constexpr OperandType ToOperandType(Byte value)
 	return value>=0 && value <=2 ? static_cast<OperandType>(value) : OperandType::Omitted;
 }
 
+constexpr bool IsPresent(OperandType type)
+{
+	return type != OperandType::Omitted;
+}
+
 /*******************************************************************************
 $00 -- $1f long 2OP small constant, small constant
 $20 -- $3f long 2OP small constant, variable
@@ -176,38 +181,38 @@ enum class OP2_Opcodes
 
 enum class VAR_Opcodes
 {
-	OP0,	// (v1) call, (v4) call_vs
-	OP1,	// storew
-	OP2,	// storeb
-	OP3,	// put_prop
-	OP4,	// (v1) sread, (v4) sread, (v5) aread
-	OP5,	// print_char
-	OP6,	// print_num
-	OP7,	// random
-	OP8,	// push
-	OP9,	// (v1) pull, (v6) pull
-	OP10,	// (v3) split_window
-	OP11,	// (v3) set_window
-	OP12,	// (v4) call_vs2
-	OP13,	// (v4) erase_window
-	OP14,	// (v4/-) erase_line
-	OP15,	// (v4) set_cursor, (v6) set_cursor
-	OP16,	// (v4) get_cursor
-	OP17,	// (v4) set_text_style
-	OP18,	// (v4) buffer_mode
-	OP19,	// (v3) output_stream, (v5) output_stream, (v6) output_stream
-	OP20,	// (v3) input_stream
-	OP21,	// (v5/3) sound_effect
-	OP22,	// (v4) read_char
-	OP23,	// (v4) scan_table
-	OP24,	// (v5/6) not
-	OP25,	// (v5) call_vn
-	OP26,	// (v5) call_vn2
-	OP27,	// (v5) tokenize
-	OP28,	// (v5) encode_text
-	OP29,	// (v5) copy_table
-	OP30,	// (v5) print_table
-	OP31,	// (v5) check_arg_count
+	OP224,	// (v1) call, (v4) call_vs
+	OP225,	// storew
+	OP226,	// storeb
+	OP227,	// put_prop
+	OP228,	// (v1) sread, (v4) sread, (v5) aread
+	OP229,	// print_char
+	OP230,	// print_num
+	OP231,	// random
+	OP232,	// push
+	OP233,	// (v1) pull, (v6) pull
+	OP234,	// (v3) split_window
+	OP235,	// (v3) set_window
+	OP236,	// (v4) call_vs2
+	OP237,	// (v4) erase_window
+	OP238,	// (v4/-) erase_line
+	OP239,	// (v4) set_cursor, (v6) set_cursor
+	OP240,	// (v4) get_cursor
+	OP241,	// (v4) set_text_style
+	OP242,	// (v4) buffer_mode
+	OP243,	// (v3) output_stream, (v5) output_stream, (v6) output_stream
+	OP244,	// (v3) input_stream
+	OP245,	// (v5/3) sound_effect
+	OP246,	// (v4) read_char
+	OP247,	// (v4) scan_table
+	OP248,	// (v5/6) not
+	OP249,	// (v5) call_vn
+	OP250,	// (v5) call_vn2
+	OP251,	// (v5) tokenize
+	OP252,	// (v5) encode_text
+	OP253,	// (v5) copy_table
+	OP254,	// (v5) print_table
+	OP255,	// (v5) check_arg_count
 };
 
 

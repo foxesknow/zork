@@ -1,8 +1,31 @@
 #include <algorithm>
+
 #include <Zork\Story.h>
 
 namespace zork
 {
+
+void Story::run()
+{
+	if(m_Version < 6)
+	{
+		m_PC = m_AddressSpace.readByte(0x6);
+	}
+	else
+	{
+		m_PC = m_AddressSpace.readWord(0x6);
+		m_PC = expandPackedRoutineAddress(m_PC);
+	}
+
+	m_PC = 0x37d9;
+
+	allocateNewFrame(0,0,DiscardResultsVariable);
+
+	for(;;)
+	{
+		executeNextInstruction();
+	}
+}
 
 void Story::executeNextInstruction()
 {
@@ -26,7 +49,7 @@ void Story::executeNextInstruction()
 		}
 
 		case OpcodeForm::Long:
-			type1 = (opcodeDetails.getEncodedOpcode() & 32) ? OperandType::Variable : OperandType::Small;
+			type1 = (opcodeDetails.getEncodedOpcode() & 64) ? OperandType::Variable : OperandType::Small;
 			type2 = (opcodeDetails.getEncodedOpcode() & 32) ? OperandType::Variable : OperandType::Small;
 			break;
 
@@ -67,12 +90,9 @@ void Story::executeNextInstruction()
 	}
 }
 
-void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
-{
-}
-
 void Story::executeEXT(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
 {
+	ThrowNotImplemented();
 }
 
 void Story::storeVariable(Byte variableID, Word value)
@@ -244,13 +264,12 @@ void Story::callRoutine(Address routineAddress, Word returnVariable, const std::
 	Address returnAddress = m_PC;
 
 	auto normalizedAddress = expandPackedRoutineAddress(routineAddress);
-	auto numberOfLocals = m_AddressSpace.readByte(normalizedAddress);
-
-	auto stackFrame = m_StackSpace.allocateNewFrame(returnAddress, numberOfLocals, returnVariable);
-	m_Frames.push(stackFrame);
 
 	// Point to the new routine
 	m_PC = normalizedAddress;
+
+	auto numberOfLocals = readNextByte();
+	auto stackFrame = allocateNewFrame(returnAddress, numberOfLocals, returnVariable);
 
 	// The local default values are stored next
 	if(m_Version <= 4)

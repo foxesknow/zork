@@ -24,6 +24,15 @@ int main()
 	auto console = std::make_shared<TextConsole>();
 
 	Story story(std::move(addressSpace), console);
+	
+	try
+	{
+		story.run();
+	}
+	catch(const Exception &e)
+	{
+		std::cerr << e.reason() << std::endl;
+	}
 
 	//auto s=story.readString(0xb106);
 	//std::cout << s << std::endl;

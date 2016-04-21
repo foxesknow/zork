@@ -7,6 +7,9 @@ namespace zork
 void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2)
 {
 	const auto opcode = static_cast<OP2_Opcodes>(opcodeDetails.getDecodedOpcode());
+	
+	// NOTE: Special case
+	if(opcode == OP2_Opcodes::OP0_UNUSED) return;
 
 	const auto a = read(type1);
 	const auto b = read(type2);
@@ -288,7 +291,7 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 		}
 
 		default:
-			panic("unsupported op2 opcode");
+			ThrowNotImplemented();
 			break;
 	}
 }
