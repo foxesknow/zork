@@ -32,7 +32,7 @@ private:
 	Address m_PC;
 
 	std::map<int,std::string> m_Abbreviations;
-	std::set<std::string> m_Dictionary;
+	std::set<DictionaryEntry> m_Dictionary;
 
 private:
 	void ThrowNotImplemented(const OpcodeDetails opcodeDetails) const;

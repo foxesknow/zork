@@ -293,7 +293,7 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 
 		case OP2_Opcodes::OP27: // set_color
 		{
-			panic("op2_op27 not implemented");
+			ThrowNotImplemented(opcodeDetails);
 			break;
 		}
 

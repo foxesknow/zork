@@ -76,5 +76,37 @@ inline void panic(const std::string &message)
 	throw Exception(message);
 }
 
+class DictionaryEntry
+{
+private:
+	Address m_Address;
+	std::string m_String;
+
+public:
+	DictionaryEntry(Address address, const std::string &string) : m_Address(address), m_String(string)
+	{
+	}
+
+	Address getAddress() const
+	{
+		return m_Address;
+	}
+
+	const std::string &getString() const
+	{
+		return m_String;
+	}
+};
+
+inline bool operator==(const DictionaryEntry &lhs, const DictionaryEntry &rhs)
+{
+	return lhs.getString() == rhs.getString();
+}
+
+inline bool operator<(const DictionaryEntry &lhs, const DictionaryEntry &rhs)
+{
+	return lhs.getString() < rhs.getString();
+}
+
 
 } // End of namespace

@@ -79,7 +79,7 @@ void Story::buildDictionary()
 	{
 		AddressSpaceZsciiReader reader(m_AddressSpace, entryAddress);
 		auto text = readString(reader);
-		m_Dictionary.insert(text);
+		m_Dictionary.insert(DictionaryEntry(entryAddress, text));
 	}
 }
 
