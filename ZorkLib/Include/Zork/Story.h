@@ -36,10 +36,10 @@ private:
 	std::set<std::string> m_Dictionary;
 
 private:
-	void ThrowNotImplemented() const
+	void ThrowNotImplemented(const OpcodeDetails opcodeDetails) const
 	{
 		std::stringstream stream;
-		stream << "not implemented - PC = " << std::hex << m_PC;
+		stream << "not implemented - PC = " << std::hex << opcodeDetails.getBaseAddress();
 		throw Exception(stream.str());
 	}
 
@@ -64,7 +64,7 @@ private:
 
 	void executeOP0(OpcodeDetails opcodeDetails);
 	void executeOP1(OpcodeDetails opcodeDetails, OperandType type1);
-	void executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2);
+	void executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void executeEXT(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 

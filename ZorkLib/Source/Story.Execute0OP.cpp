@@ -48,19 +48,19 @@ void Story::executeOP0(OpcodeDetails opcodeDetails)
 
 		case OP0_Opcodes::OP181:
 		{
-			ThrowNotImplemented();
+			ThrowNotImplemented(opcodeDetails);
 			break;
 		}
 
 		case OP0_Opcodes::OP182:
 		{
-			ThrowNotImplemented();
+			ThrowNotImplemented(opcodeDetails);
 			break;
 		}
 
 		case OP0_Opcodes::OP183:
 		{
-			ThrowNotImplemented();
+			ThrowNotImplemented(opcodeDetails);
 			break;
 		}
 
@@ -80,7 +80,7 @@ void Story::executeOP0(OpcodeDetails opcodeDetails)
 
 		case OP0_Opcodes::OP186:
 		{
-			ThrowNotImplemented();
+			ThrowNotImplemented(opcodeDetails);
 			break;
 		}
 
@@ -92,7 +92,7 @@ void Story::executeOP0(OpcodeDetails opcodeDetails)
 
 		case OP0_Opcodes::OP188:
 		{
-			ThrowNotImplemented();
+			ThrowNotImplemented(opcodeDetails);
 			break;
 		}
 
@@ -144,7 +144,7 @@ void Story::executeOP0(OpcodeDetails opcodeDetails)
 
 		default:
 		{
-			ThrowNotImplemented();
+			ThrowNotImplemented(opcodeDetails);
 			break;
 		}
 	}

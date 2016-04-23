@@ -4,23 +4,37 @@
 namespace zork
 {
 
-void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2)
+void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
 {
 	const auto opcode = static_cast<OP2_Opcodes>(opcodeDetails.getDecodedOpcode());
 	
 	// NOTE: Special case
 	if(opcode == OP2_Opcodes::OP0_UNUSED) return;
 
-	const auto a = read(type1);
-	const auto b = read(type2);
+	const Word a = (IsPresent(type1) ? read(type1) : 0);
+	const Word b = (IsPresent(type2) ? read(type2) : 0);
+	const Word c = (IsPresent(type3) ? read(type3) : 0);
+	const Word d = (IsPresent(type4) ? read(type4) : 0);
 
 	switch(opcode)
 	{
 		case OP2_Opcodes::OP1:	// je a b ?(label)
 		{
-			bool outcome = (AsSignedWord(a) == AsSignedWord(b));
+			auto value = AsSignedWord(a);
 			auto branchDetails = readBranchDetails();
-			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+
+			if(IsPresent(type2))
+			{
+				if(branchDetails.shouldBranch(value == AsSignedWord(b))) applyBranch(branchDetails);
+			}
+			else if(IsPresent(type3))
+			{
+				if(branchDetails.shouldBranch(value == AsSignedWord(c))) applyBranch(branchDetails);
+			}
+			else if(IsPresent(type4))
+			{
+				if(branchDetails.shouldBranch(value == AsSignedWord(d))) applyBranch(branchDetails);
+			}
 			break;
 		}
 
@@ -291,7 +305,7 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 		}
 
 		default:
-			ThrowNotImplemented();
+			ThrowNotImplemented(opcodeDetails);
 			break;
 	}
 }

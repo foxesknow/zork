@@ -50,7 +50,6 @@ void Story::executeOP1(OpcodeDetails opcodeDetails, OperandType type1)
 		case OP1_Opcodes::OP131: // get_parent object -> (result)
 		{
 			auto variableID = readVariableID();
-			auto branchDetails = readBranchDetails();
 
 			auto object = getObject(a);
 			auto parent = object.getParent();
@@ -99,7 +98,7 @@ void Story::executeOP1(OpcodeDetails opcodeDetails, OperandType type1)
 
 		case OP1_Opcodes::OP137: // remove_obj object
 		{
-			ThrowNotImplemented();
+			ThrowNotImplemented(opcodeDetails);
 			break;
 		}
 
@@ -144,7 +143,7 @@ void Story::executeOP1(OpcodeDetails opcodeDetails, OperandType type1)
 
 		default:
 		{
-			ThrowNotImplemented();
+			ThrowNotImplemented(opcodeDetails);
 			break;
 		}
 	}

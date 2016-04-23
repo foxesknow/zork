@@ -69,7 +69,7 @@ void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 
 		case VAR_Opcodes::OP228:
 		{
-			ThrowNotImplemented();
+			ThrowNotImplemented(opcodeDetails);
 			break;
 		}
 
@@ -122,7 +122,7 @@ void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 		}
 
 		default:
-			ThrowNotImplemented();
+			ThrowNotImplemented(opcodeDetails);
 			break;
 	}
 }

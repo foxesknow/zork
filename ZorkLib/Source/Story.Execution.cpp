@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iostream>
 
 #include <Zork\Story.h>
 
@@ -24,6 +25,7 @@ void Story::run()
 	for(;;)
 	{
 		executeNextInstruction();
+		//std::cout << std::hex << m_PC << std::endl;
 	}
 }
 
@@ -77,22 +79,22 @@ void Story::executeNextInstruction()
 			break;
 
 		case OperandCount::OP1:
-			executeOP1(opcodeDetails,type1);
+			executeOP1(opcodeDetails ,type1);
 			break;
 
 		case OperandCount::OP2:
-			executeOP2(opcodeDetails,type1,type2);
+			executeOP2(opcodeDetails, type1, type2, type3, type4);
 			break;
 
 		case OperandCount::Variable:
-			executeVAR(opcodeDetails,type1,type2,type3,type4);
+			executeVAR(opcodeDetails, type1, type2, type3, type4);
 			break;
 	}
 }
 
 void Story::executeEXT(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
 {
-	ThrowNotImplemented();
+	ThrowNotImplemented(opcodeDetails);
 }
 
 void Story::storeVariable(Byte variableID, Word value)
@@ -222,7 +224,13 @@ BranchDetails Story::readBranchDetails()
 	if((b1 & 64) == 0)
 	{
 		auto b2 = readNextByte();
-		offset = (offset <<8 ) | b2;
+		offset = ((offset << 8 ) | b2);
+
+		// We've got a signed 14 bit number. We need to sign extend it to 16 bits if bit 14 is set
+		if(offset & 8192)
+		{
+			offset |= 49152;
+		}
 	}
 
 	return BranchDetails(AsSignedWord(offset), comparisonValue);
