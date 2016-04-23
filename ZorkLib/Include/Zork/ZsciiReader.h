@@ -8,19 +8,23 @@ namespace zork
 class ZsciiReader
 {
 private:
-	const AddressSpace &m_AddressSpace;
-	Address m_Address;
-
 	int m_Chars[3];
 	int m_Index;
 
 	bool m_AtEnd;
 
-private:
-	void update(Address address)
-	{
-		auto word = m_AddressSpace.readWord(address);
+	ZsciiReader(const ZsciiReader&)=delete;
+	ZsciiReader(ZsciiReader&&)=delete;
+	ZsciiReader &operator=(const ZsciiReader&)=delete;
+	ZsciiReader &operator=(ZsciiReader&&)=delete;
 
+protected:
+	ZsciiReader()
+	{
+	}
+
+	void update(Word word)
+	{
 		m_Chars[2] = word & 0x1f;
 		word >>= 5;
 
@@ -29,20 +33,16 @@ private:
 
 		m_Chars[0] = word & 0x1f;
 		word >>= 5;
-		
+
 		m_AtEnd=word & 1;
 		m_Index=0;
 	}
 
-	ZsciiReader(const ZsciiReader&)=delete;
-	ZsciiReader(ZsciiReader&&)=delete;
-	ZsciiReader &operator=(const ZsciiReader&)=delete;
-	ZsciiReader &operator=(ZsciiReader&&)=delete;
+	virtual bool readNextWord(Word &nextWord) = 0;
 
 public:
-	ZsciiReader(const AddressSpace &addressSpace, Address normalizedAddress) : m_AddressSpace(addressSpace), m_Address(normalizedAddress)
+	virtual ~ZsciiReader()
 	{
-		update(m_Address);
 	}
 
 	bool moveNext()
@@ -57,16 +57,46 @@ public:
 		if(m_Index == 3)
 		{
 			// Read the next word;
-			m_Address = increaseWordAddress(m_Address, 1);
-			update(m_Address);
+			Word nextWord;
+			if(readNextWord(nextWord))
+			{
+				update(nextWord);
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		return true;
 	}
 
-	int getCurrent()const
+	int getCurrent() const
 	{
 		return m_Chars[m_Index];
+	}	
+};
+
+class AddressSpaceZsciiReader : public ZsciiReader
+{
+private:
+	const AddressSpace &m_AddressSpace;
+	Address m_Address;
+
+protected:
+	bool readNextWord(Word &nextWord) override
+	{
+		m_Address = increaseWordAddress(m_Address, 1);
+		nextWord = m_AddressSpace.readWord(m_Address);
+
+		return true;
+	}
+
+public:
+	AddressSpaceZsciiReader(const AddressSpace &addressSpace, Address normalizedAddress) : m_AddressSpace(addressSpace), m_Address(normalizedAddress)
+	{
+		auto word = m_AddressSpace.readWord(m_Address);
+		update(word);
 	}
 
 	Address getAddress()const
@@ -74,5 +104,6 @@ public:
 		return m_Address;
 	}
 };
+
 
 } // end of namespace

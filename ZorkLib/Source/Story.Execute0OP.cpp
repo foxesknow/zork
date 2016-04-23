@@ -24,7 +24,7 @@ void Story::executeOP0(OpcodeDetails opcodeDetails)
 		case OP0_Opcodes::OP178: // print
 		case OP0_Opcodes::OP179: // print_ret
 		{
-			ZsciiReader reader(m_AddressSpace, m_PC);
+			AddressSpaceZsciiReader reader(m_AddressSpace, m_PC);
 			auto string = readString(reader);
 			m_Console->print(string);
 

@@ -75,8 +75,8 @@ void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 
 		case VAR_Opcodes::OP229: // print_char zascii
 		{
-			//ThrowNotImplemented();
-			m_Console->print("#");
+			std::string text(1,static_cast<char>(a));
+			m_Console->print(text);
 			break;
 		}
 

@@ -76,7 +76,7 @@ void Story::buildDictionary()
 
 	for(Word i = 0; i < numberOfEntries; i++, entryAddress += entryLength)
 	{
-		ZsciiReader reader(m_AddressSpace, entryAddress);
+		AddressSpaceZsciiReader reader(m_AddressSpace, entryAddress);
 		auto text = readString(reader);
 		m_Dictionary.insert(text);
 	}
