@@ -108,5 +108,32 @@ inline bool operator<(const DictionaryEntry &lhs, const DictionaryEntry &rhs)
 	return lhs.getString() < rhs.getString();
 }
 
+class ParsedString
+{
+private:
+	Byte m_Position;
+	std::string m_Text;
+	Address m_DictionaryAddress;
+
+public:
+	ParsedString(Byte position, Address dictionaryAddress, const std::string &text) : m_Position(position), m_DictionaryAddress(dictionaryAddress), m_Text(text)
+	{
+	}
+
+	Byte getPosition() const
+	{
+		return m_Position;
+	}
+
+	Address getDictionaryAddress() const
+	{
+		return m_DictionaryAddress;
+	}
+
+	const std::string &getText() const
+	{
+		return m_Text;
+	}
+};
 
 } // End of namespace

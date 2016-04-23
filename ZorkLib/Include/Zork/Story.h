@@ -33,6 +33,7 @@ private:
 
 	std::map<int,std::string> m_Abbreviations;
 	std::set<DictionaryEntry> m_Dictionary;
+	std::string m_WordSeparators;
 
 private:
 	void ThrowNotImplemented(const OpcodeDetails opcodeDetails) const;
@@ -45,8 +46,20 @@ private:
 
 	void buildDictionary();
 
+	/** Returns the memory address of the string, or 0 if not found */
+	Address getDictionaryStringAddress(const std::string &text) const;
+
+	bool isWordSeparator(char c) const;
+
+	/** Reads a string */
 	std::string readString(Address address)const;
+
+	std::string toLowerCase(const std::string &text) const;
+	
+	/** Reads a string */
 	std::string readString(ZsciiReader &reader)const;
+
+	std::vector<ParsedString> tokenize(const std::string &text) const;
 
 	Address expandPackedRoutineAddress(Address address)const;
 	Address expandPackedStringAddress(Address address)const;
@@ -79,8 +92,19 @@ private:
 	void executeOP2_OP18(Word objectID, Word propertyID, Byte variableID);
 	void executeOP2_OP19(Word objectID, Word propertyID, Byte variableID);
 
+	void executeVAR_OP228(Address textAddress, Address parseAddress);
+
+	/** Stores a variable value */
 	void storeVariable(Byte variableID, Word value);
+	
+	/** Loads a variable */
 	Word loadVariable(Byte variableID);
+
+	/** Reads the variable id from the PC */
+	Byte readVariableID()
+	{
+		return readNextByte();
+	}
 
 	Byte readNextByte()
 	{
@@ -92,19 +116,6 @@ private:
 		Word value=m_AddressSpace.readWord(m_PC);
 		m_PC=increaseWordAddress(m_PC, 1);
 		return value;
-	}
-
-	Byte readVariableID()
-	{
-		return readNextByte();
-	}
-
-	StackFrame allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Word returnVariable)
-	{
-		auto stackFrame = m_StackSpace.allocateNewFrame(returnAddress, numberOfLocals, returnVariable);
-		m_Frames.push(stackFrame);
-
-		return stackFrame;
 	}
 
 	Word read(OperandType operandType);
@@ -120,12 +131,16 @@ private:
 
 	/** Calls a routine */
 	void callRoutine(Address routineAddress, Word returnVariable, const std::vector<Word> &arguments);
+
+	/** Allocates a new stack frame for a routine */
+	StackFrame allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Word returnVariable);
 	
 	/** Returns from a routine */
 	void returnFromCall(Word result);
 	void unwindToFrame(Word frameID);
 
-	std::vector<Word> createArguments(std::initializer_list<Word> arguments)
+	/* Creates an arguments container */
+	std::vector<Word> createArguments(std::initializer_list<Word> arguments) const
 	{
 		return std::vector<Word>(arguments);
 	}

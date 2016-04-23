@@ -8,6 +8,7 @@
 namespace zork
 {
 
+/** Defines console interaction with the user */
 class Console
 {
 public:
@@ -15,9 +16,17 @@ public:
 	{
 	}
 
+	/** Prints text */
 	virtual void print(const std::string &text) const = 0;
+	
+	/** Prints a number */
 	virtual void print(SWord number) const = 0;
+	
+	/** Prints a newline */
 	virtual void newline() const = 0;
+	
+	/** Reads text */
+	virtual std::string read(size_t numberOfCharacters) const = 0;
 };
 
 class TextConsole : public Console
@@ -36,6 +45,14 @@ public:
 	void newline() const override
 	{
 		std::cout << std::endl;
+	}
+
+	std::string read(size_t) const override
+	{
+		std::string text;
+		std::getline(std::cin, text);
+
+		return text;
 	}
 };
 

@@ -24,6 +24,11 @@ void Story::run()
 
 	for(;;)
 	{
+		if(m_PC == 0x3cae)
+		{
+			std::cout << "Break" << std::endl;
+		}
+
 		executeNextInstruction();
 		//std::cout << std::hex << m_PC << std::endl;
 	}
@@ -93,7 +98,7 @@ void Story::executeNextInstruction()
 	}
 }
 
-void Story::executeEXT(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
+void Story::executeEXT(OpcodeDetails opcodeDetails, OperandType , OperandType , OperandType , OperandType )
 {
 	ThrowNotImplemented(opcodeDetails);
 }
@@ -259,6 +264,14 @@ void Story::applyBranch(SWord offset)
 		Address newPC = m_PC + (offset - 2);
 		m_PC = newPC;
 	}
+}
+
+StackFrame Story::allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Word returnVariable)
+{
+	auto stackFrame = m_StackSpace.allocateNewFrame(returnAddress, numberOfLocals, returnVariable);
+	m_Frames.push(stackFrame);
+
+	return stackFrame;
 }
 
 void Story::callRoutine(Address routineAddress, Word returnVariable, const std::vector<Word> &arguments)

@@ -178,7 +178,7 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 		case OP2_Opcodes::OP16: // loadb array word-index -> (result)
 		{
 			Address baseAddress = a;
-			Address dataAddress = baseAddress +  b;
+			Address dataAddress = baseAddress + b;
 			auto value = m_AddressSpace.readByte(dataAddress);
 
 			auto variableID = readVariableID();

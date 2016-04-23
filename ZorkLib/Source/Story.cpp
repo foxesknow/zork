@@ -62,11 +62,10 @@ void Story::buildDictionary()
 
 	auto address = dictionaryLocation+1;
 	
-	std::string wordSeparators;
 	for(Byte i = 0; i < numberOfBytes; i++, address++)
 	{
 		auto zscii = m_AddressSpace.readByte(address);
-		wordSeparators += static_cast<char>(zscii);
+		m_WordSeparators += static_cast<char>(zscii);
 	}
 
 	// address now points to the "entry length" field

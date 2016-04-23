@@ -38,7 +38,7 @@ void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			break;
 		}
 
-		case VAR_Opcodes::OP226: // storew arrab word-index value
+		case VAR_Opcodes::OP226: // storew array byteindex value
 		{
 			Address baseAddress = a;
 			auto dataLocation = baseAddress + b;
@@ -69,7 +69,7 @@ void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 
 		case VAR_Opcodes::OP228:
 		{
-			ThrowNotImplemented(opcodeDetails);
+			executeVAR_OP228(a, b);			
 			break;
 		}
 
@@ -125,6 +125,55 @@ void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			ThrowNotImplemented(opcodeDetails);
 			break;
 	}
+}
+
+void Story::executeVAR_OP228(Address textAddress, Address parseAddress)
+{
+	size_t maximumInputAllowed = m_AddressSpace.readByte(textAddress);
+	auto enteredText = m_Console->read(maximumInputAllowed);
+
+	auto textToParse = toLowerCase(enteredText);
+
+	auto charsToTake = std::min(maximumInputAllowed, textToParse.size());
+	textToParse.resize(charsToTake);
+
+	// Write it to the text buffer
+	textAddress++; // To move past the size marker
+	for(auto c : textToParse)
+	{
+		m_AddressSpace.writeByte(textAddress, static_cast<Byte>(c));
+		textAddress++;
+	}
+
+	// The text buffer needs a null
+	m_AddressSpace.writeByte(textAddress, 0);
+
+	auto tokens=tokenize(textToParse);
+	size_t maximumTokensAllowed = m_AddressSpace.readByte(parseAddress);
+	auto tokensToTake = std::min(maximumTokensAllowed, tokens.size());
+
+	// Now write the parse blocks
+	parseAddress++; // Move past the size marker
+
+	// The first byte holds the number of tokens
+	m_AddressSpace.writeByte(parseAddress++, static_cast<Byte>(tokensToTake));
+
+	for(size_t i = 0; i < tokensToTake; i++)
+	{
+		const auto &token = tokens[i];
+
+		// The address in the dictionary
+		m_AddressSpace.writeWord(parseAddress, static_cast<Word>(token.getDictionaryAddress()));
+		parseAddress = increaseWordAddress(parseAddress, 1);
+
+		// The number of letters in the word
+		m_AddressSpace.writeByte(parseAddress++, static_cast<Byte>(token.getText().size()));
+
+		// The position of the word within the input string
+		m_AddressSpace.writeByte(parseAddress++, token.getPosition());
+	}
+
+	//throw Exception("TODO");
 }
 
 } // end of namespace
