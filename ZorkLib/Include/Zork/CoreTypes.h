@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <limits>
+#include <iostream>
 
 namespace zork
 {
@@ -28,12 +29,10 @@ const Byte EndLocal = 15;
 const Byte BeginGlobal = 16;
 const Byte EndGlobal = 255;
 
+/** Indicates that the results of a routine should be discarded */
 const Word DiscardResultsVariable = std::numeric_limits<Word>::max();
 
-// There time when we might need to generate a zscii null
-// This is an end of string marker (the first one) followed by 3 5s
-const Word ZsciiNull = 0b1001010010100101;
-
+/** Base class for zork exceptions */
 class Exception
 {
 private:
@@ -48,11 +47,17 @@ public:
 	{
 	}
 
+	
 	const std::string &reason()const
 	{
 		return m_Reason;
 	}
 };
+
+inline std::ostream &operator<<(std::ostream &stream, const Exception &e)
+{
+	return stream << e.reason();
+}
 
 /** Increases an address by the specified number of words */
 constexpr Address increaseWordAddress(Address address, int amount)

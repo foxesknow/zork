@@ -1,6 +1,7 @@
 #include <utility>
 
 #include <iostream>
+#include <sstream>
 
 #include <Zork\Story.h>
 #include <Zork\Object.h>
@@ -209,5 +210,13 @@ int Story::getFileSize() const
 			return size * 8;
 	}
 }
+
+void Story::ThrowNotImplemented(const OpcodeDetails opcodeDetails) const
+{
+	std::stringstream stream;
+	stream << "not implemented!  " << opcodeDetails;
+	throw Exception(stream.str());
+}
+
 
 } // end of namespace

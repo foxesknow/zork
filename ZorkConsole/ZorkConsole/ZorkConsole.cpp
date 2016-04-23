@@ -17,25 +17,20 @@ int main()
 	using namespace zork;
 
     std::string filename="D:\\Git\\zork\\StoryFiles\\minizork.z3";
-	//std::string filename="D:\\Git\\zork\\StoryFiles\\Zork\\zork2.z3";
-	//std::string filename="D:\\Git\\zork\\StoryFiles\\moonmist\\moonmist.z5";
 
 	AddressSpace addressSpace = zork::loadAddressSpaceFromFile(filename);
 	auto console = std::make_shared<TextConsole>();
 
 	Story story(std::move(addressSpace), console);
-	
+
 	try
 	{
 		story.run();
 	}
 	catch(const Exception &e)
 	{
-		std::cerr << e.reason() << std::endl;
+		std::cerr << e << std::endl;
 	}
-
-	//auto s=story.readString(0xb106);
-	//std::cout << s << std::endl;
 
 	return 0;
 }

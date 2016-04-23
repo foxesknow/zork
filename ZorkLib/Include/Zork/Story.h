@@ -5,7 +5,6 @@
 #include <vector>
 #include <stack>
 #include <memory>
-#include <sstream>
 
 #include <Zork\AddressSpace.h>
 #include <Zork\StackSpace.h>
@@ -36,12 +35,7 @@ private:
 	std::set<std::string> m_Dictionary;
 
 private:
-	void ThrowNotImplemented(const OpcodeDetails opcodeDetails) const
-	{
-		std::stringstream stream;
-		stream << "not implemented - PC = " << std::hex << opcodeDetails.getBaseAddress();
-		throw Exception(stream.str());
-	}
+	void ThrowNotImplemented(const OpcodeDetails opcodeDetails) const;
 
 	int getFileSize() const;
 
@@ -51,16 +45,27 @@ private:
 
 	void buildDictionary();
 
+	std::string readString(Address address)const;
+	std::string readString(ZsciiReader &reader)const;
+
 	Address expandPackedRoutineAddress(Address address)const;
 	Address expandPackedStringAddress(Address address)const;
 
 
 	void resolveCharacter(std::string &text, const char *&alphabet, ZsciiReader &reader)const;
 
+	Object getObject(Word objectID)const;
+	Word getNumberOfObjects()const;
 	Address getObjectTreeBaseAddress()const;
 
 	Word getDefaultProperty(Word propertyID)const;
 	Word getNumberOfDefaultProperties()const;
+
+	/** Decode the instruction at the PC */
+	OpcodeDetails decode();
+
+	/** Executes the next statement */
+	void executeNextInstruction();
 
 	void executeOP0(OpcodeDetails opcodeDetails);
 	void executeOP1(OpcodeDetails opcodeDetails, OperandType type1);
@@ -104,12 +109,19 @@ private:
 
 	Word read(OperandType operandType);
 
+	/** Reads the branching details at the PC */
 	BranchDetails readBranchDetails();
 	
+	/** Applies a branch to the PC */
 	void applyBranch(const BranchDetails &branchDetails);
+	
+	/** Applies a branch to the PC */
 	void applyBranch(SWord offset);
 
+	/** Calls a routine */
 	void callRoutine(Address routineAddress, Word returnVariable, const std::vector<Word> &arguments);
+	
+	/** Returns from a routine */
 	void returnFromCall(Word result);
 	void unwindToFrame(Word frameID);
 
@@ -125,20 +137,9 @@ private:
 
 public:
 	Story(AddressSpace &&addressSpace, std::shared_ptr<Console> console);
-	
 
-	// For now...
-	std::string readString(Address address)const;
-	std::string readString(ZsciiReader &reader)const;
-
-	Object getObject(Word objectID)const;
-
-	Word getNumberOfObjects()const;
-
+	/** Runs the story */
 	void run();
-	void executeNextInstruction();
-	OpcodeDetails decode(OpcodeForm &opcodeForm, OperandCount &operandCount);
-	
 };
 
 

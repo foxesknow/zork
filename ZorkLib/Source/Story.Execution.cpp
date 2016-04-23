@@ -31,15 +31,14 @@ void Story::run()
 
 void Story::executeNextInstruction()
 {
-	OpcodeForm opcodeForm;
-	OperandCount operandCount;
-
-	const auto opcodeDetails=decode(opcodeForm,operandCount);
+	const auto opcodeDetails=decode();
 
 	OperandType type1 = OperandType::Omitted;
 	OperandType type2 = OperandType::Omitted;
 	OperandType type3 = OperandType::Omitted;
 	OperandType type4 = OperandType::Omitted;
+
+	auto opcodeForm = opcodeDetails.getOpcodeForm();
 
 	switch(opcodeForm)
 	{
@@ -64,6 +63,8 @@ void Story::executeNextInstruction()
 			type1=ToOperandType(packed & 3);
 			break;
 	}
+
+	auto operandCount = opcodeDetails.getOperandCount();
 
 	switch(operandCount)
 	{
@@ -139,45 +140,45 @@ Word Story::loadVariable(Byte variableID)
 	}
 }
 
-OpcodeDetails Story::decode(OpcodeForm &opcodeForm, OperandCount &operandCount)
+OpcodeDetails Story::decode()
 {
 	auto baseAddress = m_PC;
 	const Byte value = readNextByte();
 
-	opcodeForm=ToOpcodeForm(value);
+	auto opcodeForm=ToOpcodeForm(value);
 
 	if(opcodeForm == OpcodeForm::Short)
 	{
-		operandCount = ((value & 48) == 48 ? OperandCount::OP0 : OperandCount::OP1);
+		auto operandCount = ((value & 48) == 48 ? OperandCount::OP0 : OperandCount::OP1);
 
 		// The opcode is in the bottom 4 bits
-		return OpcodeDetails(baseAddress, value, value & 15);
+		return OpcodeDetails(baseAddress, value, value & 15, opcodeForm, operandCount);
 	}
 
 	if(opcodeForm == OpcodeForm::Long)
 	{
-		operandCount=OperandCount::OP2;
+		auto operandCount=OperandCount::OP2;
 		
 		// The opcode is in the bottom 5 bits
-		return OpcodeDetails(baseAddress,value,value & 31);
+		return OpcodeDetails(baseAddress,value,value & 31, opcodeForm, operandCount);
 	}
 
 	if(opcodeForm == OpcodeForm::Variable)
 	{
-		operandCount = ((value & 32) ? OperandCount::Variable : OperandCount::OP2);
+		auto operandCount = ((value & 32) ? OperandCount::Variable : OperandCount::OP2);
 
 		// The opcode is in the bottom 5 bits
-		return OpcodeDetails(baseAddress, value, value & 31);
+		return OpcodeDetails(baseAddress, value, value & 31, opcodeForm, operandCount);
 	}
 
 	if(opcodeForm == OpcodeForm::Extended)
 	{
-		operandCount = OperandCount::Variable;
+		auto operandCount = OperandCount::Variable;
 
 		// The next byte has the opcode
 		Byte opcode = readNextByte();
 
-		return OpcodeDetails(baseAddress, value, opcode);
+		return OpcodeDetails(baseAddress, value, opcode, opcodeForm, operandCount);
 	}
 
 	throw Exception("unexpected opcode form");

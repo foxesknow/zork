@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 
 #include <Zork\CoreTypes.h>
 
@@ -14,6 +15,19 @@ enum class OpcodeForm : Byte
 	Variable,
 	Extended
 };
+
+std::ostream &operator<<(std::ostream &stream, OpcodeForm opcodeForm);
+
+enum class OperandCount
+{
+	OP0,
+	OP1,
+	OP2,
+	Variable
+};
+
+std::ostream &operator<<(std::ostream &stream, OperandCount operandCount);
+
 
 inline OpcodeForm ToOpcodeForm(Byte opcode)
 {
@@ -35,37 +49,47 @@ private:
 	Byte m_EncodedOpcode;
 	Byte m_DecodedOpcode;
 
+	OpcodeForm m_OpcodeForm;
+	OperandCount m_OperandCount;
+
 public:
-	OpcodeDetails(Address baseAddress, Byte encodedOpcode, Byte decodedOpcode) : m_BaseAddress(baseAddress), m_EncodedOpcode(encodedOpcode), m_DecodedOpcode(decodedOpcode)
+	OpcodeDetails(Address baseAddress, Byte encodedOpcode, Byte decodedOpcode, OpcodeForm opcodeForm, OperandCount operandCount) 
+		: m_BaseAddress(baseAddress), m_EncodedOpcode(encodedOpcode), m_DecodedOpcode(decodedOpcode), m_OpcodeForm(opcodeForm), m_OperandCount(operandCount)
 	{
 	}
 
 	/** The PC address where the opcode was read from */
-	Address getBaseAddress()const
+	Address getBaseAddress() const
 	{
 		return m_BaseAddress;
 	}
 
 	/** The opcode as it was fully encoded */
-	Byte getEncodedOpcode()const
+	Byte getEncodedOpcode() const
 	{
 		return m_EncodedOpcode;
 	}
 
 	/** The opcode after any type information has been stripped away */
-	Byte getDecodedOpcode()const
+	Byte getDecodedOpcode() const
 	{
 		return m_DecodedOpcode;
 	}
+
+	/** Returns the form of the opcode */
+	OpcodeForm getOpcodeForm() const
+	{
+		return m_OpcodeForm;
+	}
+
+	/** Returns the number of operands */
+	OperandCount getOperandCount() const
+	{
+		return m_OperandCount;
+	}
 };
 
-enum class OperandCount
-{
-	OP0,
-	OP1,
-	OP2,
-	Variable
-};
+std::ostream &operator<<(std::ostream &stream, OpcodeDetails opcodeDetails);
 
 
 enum class OperandType : Byte
@@ -75,6 +99,9 @@ enum class OperandType : Byte
 	Variable,	// 1 byte
 	Omitted		// 0 bytes 
 };
+
+
+std::ostream &operator<<(std::ostream &stream, OperandType operandType);
 
 constexpr OperandType ToOperandType(Byte value)
 {
