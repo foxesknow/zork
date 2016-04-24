@@ -17,7 +17,7 @@ private:
 	{
 		if(address >= m_Size)
 		{
-			// TODO: panic()!
+			throw Exception("invalid address");
 		}
 	}
 

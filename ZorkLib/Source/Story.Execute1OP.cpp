@@ -4,7 +4,7 @@
 namespace zork
 {
 
-void Story::executeOP1(OpcodeDetails opcodeDetails, OperandType type1)
+void Story::executeOP1(const OpcodeDetails &opcodeDetails, OperandType type1)
 {
 	const auto opcode = static_cast<OP1_Opcodes>(opcodeDetails.getDecodedOpcode());
 	const auto a = read(type1);
@@ -98,7 +98,8 @@ void Story::executeOP1(OpcodeDetails opcodeDetails, OperandType type1)
 
 		case OP1_Opcodes::OP137: // remove_obj object
 		{
-			ThrowNotImplemented(opcodeDetails);
+			auto object = getObject(a);
+			object.setParent(0);
 			break;
 		}
 

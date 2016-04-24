@@ -4,7 +4,7 @@
 namespace zork
 {
 
-void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
+void Story::executeOP2(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
 {
 	const auto opcode = static_cast<OP2_Opcodes>(opcodeDetails.getDecodedOpcode());
 	
@@ -23,18 +23,13 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 			auto value = AsSignedWord(a);
 			auto branchDetails = readBranchDetails();
 
-			if(IsPresent(type2))
-			{
-				if(branchDetails.shouldBranch(value == AsSignedWord(b))) applyBranch(branchDetails);
-			}
-			else if(IsPresent(type3))
-			{
-				if(branchDetails.shouldBranch(value == AsSignedWord(c))) applyBranch(branchDetails);
-			}
-			else if(IsPresent(type4))
-			{
-				if(branchDetails.shouldBranch(value == AsSignedWord(d))) applyBranch(branchDetails);
-			}
+			bool match = false;
+
+			if(IsPresent(type2)) match |= (value == AsSignedWord(b));
+			if(IsPresent(type3)) match |= (value == AsSignedWord(c));
+			if(IsPresent(type4)) match |= (value == AsSignedWord(d));
+
+			if(branchDetails.shouldBranch(match)) applyBranch(branchDetails);
 			break;
 		}
 
@@ -156,6 +151,8 @@ void Story::executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandTy
 
 		case OP2_Opcodes::OP14: // insert_obj object destination
 		{
+			unlinkObject(a);
+
 			auto child = getObject(a);
 			auto parent = getObject(b);
 			parent.insertObject(child);
@@ -315,6 +312,9 @@ void Story::executeOP2_OP17(Word objectID, Word propertyID, Byte variableID)
 	Word result = 0;
 	auto object = getObject(objectID);
 	auto allProperties = object.getAllPropertyBlocks();
+
+	auto nameAddress = object.getNameAddress();
+	auto nameOfObject = readString(nameAddress);
 
 	auto it = std::find_if
 	(

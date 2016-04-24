@@ -113,6 +113,41 @@ Object Story::getObject(Word objectID)const
 	return Object(m_AddressSpace, objectAddress, objectID);
 }
 
+void Story::unlinkObject(Word objectID)
+{
+	auto object = getObject(objectID);
+	if(object.getParent() == 0) return;
+
+	auto parent = getObject(object.getParent());
+
+	auto nextSibling = object.getSibling();
+	auto firstSibling = parent.getChild();
+
+	object.setParent(0);
+	object.setSibling(0);
+
+	if(firstSibling == objectID)
+	{
+		// Easy, we're removing the first child, so the parent's child property is just the next sibling
+		object.setChild(nextSibling);
+	}
+	else
+	{
+		// We need to remove the object from the list of siblings
+
+		auto sibID = firstSibling;
+		auto lastSibID = sibID;
+
+		do
+		{
+			lastSibID = sibID;
+			sibID = getObject(sibID).getSibling();
+		}while(sibID != objectID);
+
+		getObject(lastSibID).setSibling(nextSibling);
+	}
+}
+
 Word Story::getNumberOfObjects()const
 {
 	// There's no explicit count of the number of objects.

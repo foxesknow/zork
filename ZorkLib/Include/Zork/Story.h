@@ -68,6 +68,8 @@ private:
 	void resolveCharacter(std::string &text, const char *&alphabet, ZsciiReader &reader)const;
 
 	Object getObject(Word objectID)const;
+	void unlinkObject(Word objectID);
+
 	Word getNumberOfObjects()const;
 	Address getObjectTreeBaseAddress()const;
 
@@ -80,11 +82,11 @@ private:
 	/** Executes the next statement */
 	void executeNextInstruction();
 
-	void executeOP0(OpcodeDetails opcodeDetails);
-	void executeOP1(OpcodeDetails opcodeDetails, OperandType type1);
-	void executeOP2(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
-	void executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
-	void executeEXT(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void executeOP0(const OpcodeDetails &opcodeDetails);
+	void executeOP1(const OpcodeDetails &opcodeDetails, OperandType type1);
+	void executeOP2(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void executeVAR(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void executeEXT(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 
 	void executeOP0_OP185();
 

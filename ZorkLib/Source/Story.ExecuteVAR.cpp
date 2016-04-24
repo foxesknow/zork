@@ -4,7 +4,7 @@
 namespace zork
 {
 
-void Story::executeVAR(OpcodeDetails opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
+void Story::executeVAR(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4)
 {
 	const auto opcode = static_cast<VAR_Opcodes>(opcodeDetails.getDecodedOpcode());
 
@@ -169,8 +169,9 @@ void Story::executeVAR_OP228(Address textAddress, Address parseAddress)
 		// The number of letters in the word
 		m_AddressSpace.writeByte(parseAddress++, static_cast<Byte>(token.getText().size()));
 
-		// The position of the word within the input string
-		m_AddressSpace.writeByte(parseAddress++, token.getPosition());
+		// The position of the word within the input string. 
+		// It's +1 as the first char in the buffer is a size
+		m_AddressSpace.writeByte(parseAddress++, token.getPosition()+1);
 	}
 
 	//throw Exception("TODO");

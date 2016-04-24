@@ -53,45 +53,6 @@ private:
 	 */
 	std::tuple<Address,int,Word,bool> getPropertyBlockInfo(Address address)const;
 
-	void setParent(Word parentID)
-	{
-		Address address = (m_V3OrLess ? m_Address + 4 : m_Address + 6);
-		if(m_V3OrLess)
-		{
-			m_AddressSpace.writeByte(address, static_cast<Byte>(parentID));
-		}
-		else
-		{
-			m_AddressSpace.writeWord(address, parentID);
-		}
-	}
-
-	void setChild(Word childID)
-	{
-		Address address = (m_V3OrLess ? m_Address + 6 : m_Address + 10);
-		if(m_V3OrLess)
-		{
-			m_AddressSpace.writeByte(address,static_cast<Byte>(childID));
-		}
-		else
-		{
-			m_AddressSpace.writeWord(address,childID);
-		}
-	}
-
-	void setSibling(Word siblingID)
-	{
-		Address address = (m_V3OrLess ? m_Address + 5 : m_Address + 8);
-		if(m_V3OrLess)
-		{
-			m_AddressSpace.writeByte(address, static_cast<Byte>(siblingID));
-		}
-		else
-		{
-			m_AddressSpace.writeWord(address, siblingID);
-		}
-	}
-
 public:
 	Object(AddressSpace &addressSpace, Address address, Word objectID) : m_AddressSpace(addressSpace), m_Address(address), m_ObjectID(objectID)
 	{
@@ -148,6 +109,46 @@ public:
 		Address address = (m_V3OrLess ? m_Address + 6 : m_Address + 10);
 		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
+
+		void setParent(Word parentID)
+	{
+		Address address = (m_V3OrLess ? m_Address + 4 : m_Address + 6);
+		if(m_V3OrLess)
+		{
+			m_AddressSpace.writeByte(address, static_cast<Byte>(parentID));
+		}
+		else
+		{
+			m_AddressSpace.writeWord(address, parentID);
+		}
+	}
+
+	void setChild(Word childID)
+	{
+		Address address = (m_V3OrLess ? m_Address + 6 : m_Address + 10);
+		if(m_V3OrLess)
+		{
+			m_AddressSpace.writeByte(address,static_cast<Byte>(childID));
+		}
+		else
+		{
+			m_AddressSpace.writeWord(address,childID);
+		}
+	}
+
+	void setSibling(Word siblingID)
+	{
+		Address address = (m_V3OrLess ? m_Address + 5 : m_Address + 8);
+		if(m_V3OrLess)
+		{
+			m_AddressSpace.writeByte(address, static_cast<Byte>(siblingID));
+		}
+		else
+		{
+			m_AddressSpace.writeWord(address, siblingID);
+		}
+	}
+
 
 	/** The address of the object properties */
 	Address getPropertiesAddress()const

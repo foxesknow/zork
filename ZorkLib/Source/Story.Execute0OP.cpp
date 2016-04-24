@@ -3,7 +3,7 @@
 namespace zork
 {
 
-void Story::executeOP0(OpcodeDetails opcodeDetails)
+void Story::executeOP0(const OpcodeDetails &opcodeDetails)
 {
 	const auto opcode = static_cast<OP0_Opcodes>(opcodeDetails.getDecodedOpcode());
 

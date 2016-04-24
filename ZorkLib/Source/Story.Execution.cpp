@@ -10,7 +10,7 @@ void Story::run()
 {
 	if(m_Version < 6)
 	{
-		m_PC = m_AddressSpace.readByte(0x6);
+		m_PC = m_AddressSpace.readWord(0x6);
 	}
 	else
 	{
@@ -18,13 +18,11 @@ void Story::run()
 		m_PC = expandPackedRoutineAddress(m_PC);
 	}
 
-	m_PC = 0x37d9;
-
 	allocateNewFrame(0,0,DiscardResultsVariable);
 
 	for(;;)
 	{
-		if(m_PC == 0x3cae)
+		if(m_PC == 0x47ec)
 		{
 			std::cout << "Break" << std::endl;
 		}
@@ -98,7 +96,7 @@ void Story::executeNextInstruction()
 	}
 }
 
-void Story::executeEXT(OpcodeDetails opcodeDetails, OperandType , OperandType , OperandType , OperandType )
+void Story::executeEXT(const OpcodeDetails &opcodeDetails, OperandType , OperandType , OperandType , OperandType )
 {
 	ThrowNotImplemented(opcodeDetails);
 }
@@ -148,6 +146,13 @@ Word Story::loadVariable(Byte variableID)
 OpcodeDetails Story::decode()
 {
 	auto baseAddress = m_PC;
+
+	if(baseAddress > 0xffff)
+	{
+		std::cout << "hmm" << std::endl;
+	}
+
+
 	const Byte value = readNextByte();
 
 	auto opcodeForm=ToOpcodeForm(value);

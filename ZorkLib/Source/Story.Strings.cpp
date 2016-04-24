@@ -166,8 +166,7 @@ std::vector<ParsedString> Story::tokenize(const std::string &text) const
 			{
 				auto address = getDictionaryStringAddress(current);
 				results.push_back(ParsedString(textPosition, address, current));
-				current.clear();
-				textPosition = index;
+				current.clear();				
 			}
 			
 			// Separators are added to the token stream
@@ -181,6 +180,12 @@ std::vector<ParsedString> Story::tokenize(const std::string &text) const
 		else
 		{
 			// It's a regular character
+
+			if(current.empty())
+			{
+				textPosition = index;
+			}
+
 			current += c;
 		}
 	}
