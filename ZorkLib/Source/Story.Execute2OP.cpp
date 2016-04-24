@@ -343,14 +343,7 @@ void Story::executeOP2_OP17(Word objectID, Word propertyID, Byte variableID)
 	else
 	{
 		// The object doesn't have this property, so get it from the defaults
-		if(propertyID < getNumberOfDefaultProperties())
-		{
-			result = getDefaultProperty(propertyID);
-		}
-		else
-		{
-			panic("invalid default property id");
-		}
+		result = getDefaultProperty(propertyID);
 	}
 
 	storeVariable(variableID, result);

@@ -96,21 +96,7 @@ public:
 		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
 
-	/** Returns the number of the sibling, or 0 if no sibling */
-	Word getSibling()const
-	{
-		Address address = (m_V3OrLess ? m_Address + 5 : m_Address + 8);
-		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
-	}
-
-	/** Returns the number of the child, or 0 if no child */
-	Word getChild()const
-	{
-		Address address = (m_V3OrLess ? m_Address + 6 : m_Address + 10);
-		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
-	}
-
-		void setParent(Word parentID)
+	void setParent(Word parentID)
 	{
 		Address address = (m_V3OrLess ? m_Address + 4 : m_Address + 6);
 		if(m_V3OrLess)
@@ -123,17 +109,11 @@ public:
 		}
 	}
 
-	void setChild(Word childID)
+	/** Returns the number of the sibling, or 0 if no sibling */
+	Word getSibling()const
 	{
-		Address address = (m_V3OrLess ? m_Address + 6 : m_Address + 10);
-		if(m_V3OrLess)
-		{
-			m_AddressSpace.writeByte(address,static_cast<Byte>(childID));
-		}
-		else
-		{
-			m_AddressSpace.writeWord(address,childID);
-		}
+		Address address = (m_V3OrLess ? m_Address + 5 : m_Address + 8);
+		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
 	}
 
 	void setSibling(Word siblingID)
@@ -149,6 +129,25 @@ public:
 		}
 	}
 
+	/** Returns the number of the child, or 0 if no child */
+	Word getChild()const
+	{
+		Address address = (m_V3OrLess ? m_Address + 6 : m_Address + 10);
+		return m_V3OrLess ? m_AddressSpace.readByte(address) : m_AddressSpace.readWord(address);
+	}
+
+	void setChild(Word childID)
+	{
+		Address address = (m_V3OrLess ? m_Address + 6 : m_Address + 10);
+		if(m_V3OrLess)
+		{
+			m_AddressSpace.writeByte(address,static_cast<Byte>(childID));
+		}
+		else
+		{
+			m_AddressSpace.writeWord(address,childID);
+		}
+	}
 
 	/** The address of the object properties */
 	Address getPropertiesAddress()const

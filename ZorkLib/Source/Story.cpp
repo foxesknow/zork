@@ -85,7 +85,7 @@ void Story::buildDictionary()
 Word Story::getDefaultProperty(Word propertyID)const
 {
 	auto objectTableAddress = m_AddressSpace.readWord(0x0a);
-	auto location = increaseWordAddress(objectTableAddress, propertyID);
+	auto location = increaseWordAddress(objectTableAddress, (propertyID - 1));
 	return m_AddressSpace.readWord(location);
 }
 

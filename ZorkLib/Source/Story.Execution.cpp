@@ -22,7 +22,7 @@ void Story::run()
 
 	for(;;)
 	{
-		if(m_PC == 0x47ec)
+		if(m_PC == 0x8f08)
 		{
 			std::cout << "Break" << std::endl;
 		}

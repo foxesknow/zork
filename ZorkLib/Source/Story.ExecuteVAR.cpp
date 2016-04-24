@@ -99,7 +99,7 @@ void Story::executeVAR(const OpcodeDetails &opcodeDetails, OperandType type1, Op
 			else
 			{
 				// We need a number between 1 and range
-				auto randomNumber = static_cast<Word>((std::rand() / range) + 1);
+				auto randomNumber = static_cast<Word>((std::rand() % range) + 1);
 				storeVariable(variableID, randomNumber);
 			}
 
