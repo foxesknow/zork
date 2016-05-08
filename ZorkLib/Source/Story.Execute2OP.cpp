@@ -11,295 +11,115 @@ void Story::executeOP2(const OpcodeDetails &opcodeDetails, OperandType type1, Op
 	// NOTE: Special case
 	if(opcode == OP2_Opcodes::OP0_UNUSED) return;
 
-	const Word a = (IsPresent(type1) ? read(type1) : 0);
-	const Word b = (IsPresent(type2) ? read(type2) : 0);
-	const Word c = (IsPresent(type3) ? read(type3) : 0);
-	const Word d = (IsPresent(type4) ? read(type4) : 0);
-
 	switch(opcode)
 	{
-		case OP2_Opcodes::OP1:	// je a b ?(label)
-		{
-			auto value = AsSignedWord(a);
-			auto branchDetails = readBranchDetails();
-
-			bool match = false;
-
-			if(IsPresent(type2)) match |= (value == AsSignedWord(b));
-			if(IsPresent(type3)) match |= (value == AsSignedWord(c));
-			if(IsPresent(type4)) match |= (value == AsSignedWord(d));
-
-			if(branchDetails.shouldBranch(match)) applyBranch(branchDetails);
+		case OP2_Opcodes::OP1:
+			handle_je(type1, type2, type3, type4);
 			break;
-		}
 
-		case OP2_Opcodes::OP2:	// jl a b ?(label)
-		{
-			bool outcome = (AsSignedWord(a) < AsSignedWord(b));
-			auto branchDetails = readBranchDetails();
-			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+		case OP2_Opcodes::OP2:
+			handle_jl(type1,type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP3:	// jg a b ?(label)
-		{
-			bool outcome = (AsSignedWord(a) > AsSignedWord(b));
-			auto branchDetails = readBranchDetails();
-			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+		case OP2_Opcodes::OP3:
+			handle_jg(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP4: // dec_chk (variable) value ?(label)
-		{
-			auto variableID = static_cast<Byte>(a);
-			auto value = AsSignedWord(loadVariable(variableID));
-			value--;
-			storeVariable(variableID, AsWord(value));
-
-			bool outcome = (value < AsSignedWord(b));
-			auto branchDetails = readBranchDetails();
-			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+		case OP2_Opcodes::OP4:
+			handle_dec_chk(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP5: // inc_chk (variable) value ?(label)
-		{
-			auto variableID = static_cast<Byte>(a);
-			auto value = AsSignedWord(loadVariable(variableID));
-			value++;
-			storeVariable(variableID, AsWord(value));
-
-			bool outcome = (value > AsSignedWord(b));
-			auto branchDetails = readBranchDetails();
-			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
-			
+		case OP2_Opcodes::OP5:
+			handle_inc_chk(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP6: // jin obj1 obj2 ?(label)
-		{
-			// jump is obj1 is a direct child of obj2, i.e., if parent of obj1 is obj2
-			auto obj1 = getObject(a);
-
-			bool outcome = (obj1.getParent() == b);
-			auto branchDetails = readBranchDetails();
-			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
-
+		case OP2_Opcodes::OP6:
+			handle_jin(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP7: // test bitmap flags ?(label)
-		{
-			// NOTE: All the flags of b must be set
-			bool outcome = ((a & b) == a);
-			auto branchDetails = readBranchDetails();
-			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
-
+		case OP2_Opcodes::OP7:
+			handle_test(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP8: // or a b -> (result)
-		{
-			Word result = a | b;
-			auto variableID = readVariableID();
-			storeVariable(variableID, result);
+		case OP2_Opcodes::OP8:
+			handle_or(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP9: // and a b -> (result)
-		{
-			Word result = a & b;
-			auto variableID = readVariableID();
-			storeVariable(variableID, result);
-			
+		case OP2_Opcodes::OP9:
+			handle_and(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP10: // test_attr object attribute ?(label)
-		{
-			auto object = getObject(a);
-			bool outcome = object.getFlag(b);
-
-			auto branchDetails = readBranchDetails();
-			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
-
+		case OP2_Opcodes::OP10:
+			handle_test_attr(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP11: // set_attr object attribute
-		{
-			auto object = getObject(a);
-			object.setFlag(b, true);
-
+		case OP2_Opcodes::OP11:
+			handle_set_attr(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP12: // clear_attr object attribute
-		{
-			auto object = getObject(a);
-			object.setFlag(b, false);
-
+		case OP2_Opcodes::OP12:
+			handle_clear_attr(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP13: // store (variable) value
-		{
-			auto variableID = static_cast<Byte>(a);
-			storeVariable(variableID, b);
+		case OP2_Opcodes::OP13:
+			handle_store(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP14: // insert_obj object destination
-		{
-			unlinkObject(a);
-
-			auto child = getObject(a);
-			auto parent = getObject(b);
-			parent.insertObject(child);
-
+		case OP2_Opcodes::OP14:
+			handle_insert_obj(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP15: // loadw array word-index -> (result)
-		{
-			Address baseAddress = a;
-			auto dataAddress = increaseWordAddress(baseAddress, b);
-			auto value = m_AddressSpace.readWord(dataAddress);
-
-			auto variableID = readVariableID();
-			storeVariable(variableID, value);
-			
+		case OP2_Opcodes::OP15:
+			handle_loadw(type1, type2);
 			break;
-		};
 
-		case OP2_Opcodes::OP16: // loadb array word-index -> (result)
-		{
-			Address baseAddress = a;
-			Address dataAddress = baseAddress + b;
-			auto value = m_AddressSpace.readByte(dataAddress);
-
-			auto variableID = readVariableID();
-			storeVariable(variableID, value);
-
+		case OP2_Opcodes::OP16:
+			handle_loadb(type1, type2);
 			break;
-		};
 
-		case OP2_Opcodes::OP17: // get_prop object property -> (result)
-		{
-			auto variableID = readVariableID();
-			executeOP2_OP17(a, b, variableID);
-			
+		case OP2_Opcodes::OP17:
+			handle_get_prop(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP18: // get_prop_addr object property -> (result);
-		{
-			auto variableID = readVariableID();
-			executeOP2_OP18(a, b, variableID);
-
+		case OP2_Opcodes::OP18:
+			handle_get_prop_addr(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP19: // get_next_prop object property -> (result);
-		{
-			auto variableID = readVariableID();
-			executeOP2_OP19(a, b, variableID);
-
+		case OP2_Opcodes::OP19:
+			handle_get_next_prop(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP20: // add a b -> (result)
-		{
-			SWord result = AsSignedWord(a) + AsSignedWord(b);
-			auto variableID = readVariableID();
-			storeVariable(variableID, AsWord(result));
-			
+		case OP2_Opcodes::OP20:
+			handle_add(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP21: // sub a b -> (result)
-		{
-			SWord result = AsSignedWord(a) - AsSignedWord(b);
-			auto variableID = readVariableID();
-			storeVariable(variableID, AsWord(result));
-			
+		case OP2_Opcodes::OP21:
+			handle_sub(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP22: // mul a b -> (result)
-		{
-			SWord result = AsSignedWord(a) * AsSignedWord(b);
-			auto variableID = readVariableID();
-			storeVariable(variableID, AsWord(result));
-			
+		case OP2_Opcodes::OP22:
+			handle_mul(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP23: // div a b -> (result)
-		{
-			if(b == 0) throw Exception("attempt to divide by 0");
-
-			SWord result = AsSignedWord(a) / AsSignedWord(b);
-			auto variableID = readVariableID();
-			storeVariable(variableID, AsWord(result));
-			
+		case OP2_Opcodes::OP23:
+			handle_div(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP24: // mod a b -> (result)
-		{
-			if(b == 0) throw Exception("attempt to mod by 0");
-
-			const SWord result = AsSignedWord(a) % AsSignedWord(b);
-			auto variableID = readVariableID();
-			storeVariable(variableID, AsWord(result));
-			
+		case OP2_Opcodes::OP24:
+			handle_mod(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP25: // call_2s routine arg1 -> (result);
-		{
-			if(m_Version >= 4)
-			{
-				auto variableID = readVariableID();
-				auto arguments = createArguments({b});
-				callRoutine(a, variableID, arguments);
-			}
-			else
-			{
-				panic("call_2s requires v4 or above");
-			}
-
+		case OP2_Opcodes::OP25:
+			handle_call_2s(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP26: // call_2n routine arg1
-		{
-			if(m_Version >= 5)
-			{
-				auto arguments = createArguments({b});
-				callRoutine(a, DiscardResultsVariable, arguments);
-			}
-			else
-			{
-				panic("call_2n requires v5 or above");
-			}
-
+		case OP2_Opcodes::OP26:
+			handle_call_2n(type1, type2);
 			break;
-		}
 
-		case OP2_Opcodes::OP27: // set_color
-		{
-			ThrowNotImplemented(opcodeDetails);
+		case OP2_Opcodes::OP28:
+			handle_throw(type1, type2);
 			break;
-		}
-
-		case OP2_Opcodes::OP28: // throw value stack-frame
-		{
-			unwindToFrame(b);
-			returnFromCall(a);
-			break;
-		}
 
 		default:
 			ThrowNotImplemented(opcodeDetails);
@@ -307,8 +127,223 @@ void Story::executeOP2(const OpcodeDetails &opcodeDetails, OperandType type1, Op
 	}
 }
 
-void Story::executeOP2_OP17(Word objectID, Word propertyID, Byte variableID)
+void Story::handle_je(OperandType type1, OperandType type2, OperandType type3, OperandType type4)
 {
+	// je a b ?(label)
+	const Word a = (IsPresent(type1) ? read(type1) : 0);
+
+	auto value = AsSignedWord(a);	
+	bool match = false;
+
+	if(IsPresent(type2)) match |= (value == AsSignedWord(read(type2)));
+	if(IsPresent(type3)) match |= (value == AsSignedWord(read(type3)));
+	if(IsPresent(type4)) match |= (value == AsSignedWord(read(type4)));
+
+	auto branchDetails = readBranchDetails();
+	if(branchDetails.shouldBranch(match)) applyBranch(branchDetails);
+}
+
+void Story::handle_jl(OperandType type1, OperandType type2)
+{
+	// jl a b ?(label)
+	const Word a = read(type1);
+	const Word b = read(type2);
+
+	bool outcome = (AsSignedWord(a) < AsSignedWord(b));
+	auto branchDetails = readBranchDetails();
+	if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+}
+
+void Story::handle_jg(OperandType type1, OperandType type2)
+{
+	// jg a b ?(label)
+	const Word a = read(type1);
+	const Word b = read(type2);
+
+	bool outcome = (AsSignedWord(a) > AsSignedWord(b));
+	auto branchDetails = readBranchDetails();
+	if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+}
+
+void Story::handle_dec_chk(OperandType type1, OperandType type2)
+{
+	// TODO: Fix this
+
+	// dec_chk (variable) value ?(label)
+	const Word a = read(type1);
+	const Word b = read(type2);
+
+	auto variableID = static_cast<Byte>(a);
+	auto value = AsSignedWord(loadVariableInPlace(variableID));
+	value--;
+	storeVariableInPlace(variableID, AsWord(value));
+
+	bool outcome = (value < AsSignedWord(b));
+	auto branchDetails = readBranchDetails();
+	if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+}
+
+void Story::handle_inc_chk(OperandType type1, OperandType type2)
+{
+	// TODO: Fix this
+
+	// inc_chk (variable) value ?(label)
+	const Word a = read(type1);
+	const Word b = read(type2);
+
+	auto variableID = static_cast<Byte>(a);
+	auto value = AsSignedWord(loadVariableInPlace(variableID));
+	value++;
+	storeVariableInPlace(variableID, AsWord(value));
+
+	bool outcome = (value > AsSignedWord(b));
+	auto branchDetails = readBranchDetails();
+	if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+}
+
+void Story::handle_jin(OperandType type1, OperandType type2)
+{
+	// jin obj1 obj2 ?(label)
+	const Word a = read(type1);
+	const Word b = read(type2);
+
+	// jump if obj1 is a direct child of obj2, i.e., if parent of obj1 is obj2
+	auto obj1 = getObject(a);
+
+	bool outcome = (obj1.getParent() == b);
+	auto branchDetails = readBranchDetails();
+	if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+}
+
+void Story::handle_test(OperandType type1, OperandType type2)
+{
+	// test bitmap flags ?(label)
+	const Word a = read(type1);
+	const Word b = read(type2);
+
+	// NOTE: All the flags of b must be set
+	bool outcome = ((a & b) == a);
+	auto branchDetails = readBranchDetails();
+	if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+}
+
+void Story::handle_or(OperandType type1, OperandType type2)
+{
+	// or a b -> (result)
+	const Word a = read(type1);
+	const Word b = read(type2);
+
+	Word result = a | b;
+	auto variableID = readVariableID();
+	storeVariable(variableID, result);	
+}
+
+void Story::handle_and(OperandType type1, OperandType type2)
+{
+	// and a b -> (result)
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	Word result = a & b;
+	auto variableID = readVariableID();
+	storeVariable(variableID, result);
+}
+
+void Story::handle_test_attr(OperandType type1, OperandType type2)
+{
+	// test_attr object attribute ?(label)
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	auto object = getObject(a);
+	bool outcome = object.getFlag(b);
+
+	auto branchDetails = readBranchDetails();
+	if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+}
+
+void Story::handle_set_attr(OperandType type1, OperandType type2)
+{	
+	// set_attr object attribute
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	auto object = getObject(a);
+	object.setFlag(b, true);
+}
+
+void Story::handle_clear_attr(OperandType type1, OperandType type2)
+{
+	// clear_attr object attribute
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	auto object = getObject(a);
+	object.setFlag(b, false);
+}
+
+void Story::handle_store(OperandType type1, OperandType type2)
+{
+	// store (variable) value
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	// TODO: Fix this
+
+	auto variableID = static_cast<Byte>(a);
+	storeVariableInPlace(variableID, b);
+}
+
+void Story::handle_insert_obj(OperandType type1, OperandType type2)
+{
+	// insert_obj object destination
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	unlinkObject(a);
+
+	auto child = getObject(a);
+	auto parent = getObject(b);
+	parent.insertObject(child);
+}
+
+void Story::handle_loadw(OperandType type1, OperandType type2)
+{
+	// loadw array word-index -> (result)
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	Address baseAddress = a;
+	auto dataAddress = increaseWordAddress(baseAddress, b);
+	auto value = m_AddressSpace.readWord(dataAddress);
+
+	auto variableID = readVariableID();
+	storeVariable(variableID, value);
+}
+
+void Story::handle_loadb(OperandType type1, OperandType type2)
+{
+	// loadb array word-index -> (result)
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	Address baseAddress = a;
+	Address dataAddress = baseAddress + b;
+	auto value = m_AddressSpace.readByte(dataAddress);
+
+	auto variableID = readVariableID();
+	storeVariable(variableID, value);	
+}
+
+void Story::handle_get_prop(OperandType type1, OperandType type2)
+{
+	// get_prop object property -> (result)
+
+	const Word objectID = read(type1);
+	const Word propertyID = read(type2);	
+
+	auto variableID = readVariableID();
+	
 	Word result = 0;
 	auto object = getObject(objectID);
 	auto allProperties = object.getAllPropertyBlocks();
@@ -349,8 +384,14 @@ void Story::executeOP2_OP17(Word objectID, Word propertyID, Byte variableID)
 	storeVariable(variableID, result);
 }
 
-void Story::executeOP2_OP18(Word objectID, Word propertyID, Byte variableID)
+void Story::handle_get_prop_addr(OperandType type1, OperandType type2)
 {
+	// get_prop_addr object property -> (result);
+	const Word objectID = read(type1);
+	const Word propertyID = read(type2);	
+	
+	auto variableID = readVariableID();
+	
 	auto object = getObject(objectID);
 	auto allProperties = object.getAllPropertyBlocks();
 
@@ -372,8 +413,14 @@ void Story::executeOP2_OP18(Word objectID, Word propertyID, Byte variableID)
 	}
 }
 
-void Story::executeOP2_OP19(Word objectID, Word propertyID, Byte variableID)
+void Story::handle_get_next_prop(OperandType type1, OperandType type2)
 {
+	// get_next_prop object property -> (result);
+	const Word objectID = read(type1);
+	const Word propertyID = read(type2);	
+
+	auto variableID = readVariableID();
+
 	Word result = 0;
 	auto object = getObject(objectID);
 	auto allProperties = object.getAllPropertyBlocks();
@@ -412,5 +459,113 @@ void Story::executeOP2_OP19(Word objectID, Word propertyID, Byte variableID)
 
 	storeVariable(variableID, result);
 }
+
+void Story::handle_add(OperandType type1, OperandType type2)
+{	
+	// add a b -> (result)
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	SWord result = AsSignedWord(a) + AsSignedWord(b);
+	auto variableID = readVariableID();
+	storeVariable(variableID, AsWord(result));
+}
+
+void Story::handle_sub(OperandType type1, OperandType type2)
+{
+	// sub a b -> (result)
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	SWord result = AsSignedWord(a) - AsSignedWord(b);
+	auto variableID = readVariableID();
+	storeVariable(variableID, AsWord(result));
+}
+
+void Story::handle_mul(OperandType type1, OperandType type2)
+{
+	// mul a b -> (result)
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	SWord result = AsSignedWord(a) * AsSignedWord(b);
+	auto variableID = readVariableID();
+	storeVariable(variableID, AsWord(result));
+}
+
+void Story::handle_div(OperandType type1, OperandType type2)
+{
+	// div a b -> (result)
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	if(b == 0) throw Exception("attempt to divide by 0");
+
+	SWord result = AsSignedWord(a) / AsSignedWord(b);
+	auto variableID = readVariableID();
+	storeVariable(variableID, AsWord(result));
+}
+
+void Story::handle_mod(OperandType type1, OperandType type2)
+{
+	// mod a b -> (result)
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	if(b == 0) throw Exception("attempt to mod by 0");
+
+	const SWord result = AsSignedWord(a) % AsSignedWord(b);
+	auto variableID = readVariableID();
+	storeVariable(variableID, AsWord(result));
+}
+
+void Story::handle_call_2s(OperandType type1, OperandType type2)
+{
+	// call_2s routine arg1 -> (result);
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	if(m_Version >= 4)
+	{
+		auto variableID = readVariableID();
+		auto arguments = createArguments({b});
+		callRoutine(a, variableID, arguments);
+	}
+	else
+	{
+		panic("call_2s requires v4 or above");
+	}
+}
+
+void Story::handle_call_2n(OperandType type1, OperandType type2)
+{
+	// call_2n routine arg1
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	if(m_Version >= 5)
+	{
+		auto arguments = createArguments({b});
+		callRoutine(a, DiscardResultsVariable, arguments);
+	}
+	else
+	{
+		panic("call_2n requires v5 or above");
+	}
+}
+
+void Story::handle_throw(OperandType type1, OperandType type2)
+{
+	// throw value stack-frame
+
+	const Word a = read(type1);
+	const Word b = read(type2);	
+
+	unwindToFrame(b);
+	returnFromCall(a);
+}
+
+
+
 
 } // end of namespace

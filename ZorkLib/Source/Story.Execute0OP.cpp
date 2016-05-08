@@ -30,7 +30,7 @@ void Story::executeOP0(const OpcodeDetails &opcodeDetails)
 
 			if(opcode == OP0_Opcodes::OP178)
 			{
-				m_PC = increaseWordAddress(reader.getAddress(), 1); // +1 as the address is the end of the string
+				setPC(increaseWordAddress(reader.getAddress(), 1)); // +1 as the address is the end of the string
 			}
 			else
 			{

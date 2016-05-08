@@ -10,26 +10,33 @@ void Story::run()
 {
 	if(m_Version < 6)
 	{
-		m_PC = m_AddressSpace.readWord(0x6);
+		setPC(m_AddressSpace.readWord(0x6));
 	}
 	else
 	{
-		m_PC = m_AddressSpace.readWord(0x6);
-		m_PC = expandPackedRoutineAddress(m_PC);
+		auto address = m_AddressSpace.readWord(0x6);
+		setPC(expandPackedRoutineAddress(address));
 	}
 
 	allocateNewFrame(0,0,DiscardResultsVariable);
 
 	for(;;)
 	{
-		if(m_PC == 0x8f08)
+		if(m_PC == 0x8523 || m_PC == 0x6add)
 		{
-			std::cout << "Break" << std::endl;
+			//std::cout << "Break" << std::endl;
 		}
+
+		//std::cout << std::hex << m_PC << std::dec << std::endl;
 
 		executeNextInstruction();
 		//std::cout << std::hex << m_PC << std::endl;
 	}
+}
+
+void Story::setPC(Address address)
+{
+	m_PC = address;
 }
 
 void Story::executeNextInstruction()
@@ -122,6 +129,20 @@ void Story::storeVariable(Byte variableID, Word value)
 	}
 }
 
+void Story::storeVariableInPlace(Byte variableID, Word value)
+{
+	if(variableID == 0)
+	{
+		// We write over the top of the stack
+		m_StackSpace.pop();
+		m_StackSpace.push(value);
+	}
+	else
+	{
+		storeVariable(variableID, value);
+	}
+}
+
 Word Story::loadVariable(Byte variableID)
 {
 	if(variableID == TopOfStack)
@@ -140,6 +161,19 @@ Word Story::loadVariable(Byte variableID)
 		// It's a global
 		auto address = increaseWordAddress(m_GlobalVariablesTable, variableID - BeginGlobal);
 		return m_AddressSpace.readWord(address);
+	}
+}
+
+Word Story::loadVariableInPlace(Byte variableID)
+{
+	if(variableID == 0)
+	{
+		// We return the peek of the stack
+		return m_StackSpace.peek();
+	}
+	else
+	{
+		return loadVariable(variableID);
 	}
 }
 
@@ -267,7 +301,7 @@ void Story::applyBranch(SWord offset)
 	else
 	{
 		Address newPC = m_PC + (offset - 2);
-		m_PC = newPC;
+		setPC(newPC);
 	}
 }
 
@@ -293,7 +327,7 @@ void Story::callRoutine(Address routineAddress, Word returnVariable, const std::
 	auto normalizedAddress = expandPackedRoutineAddress(routineAddress);
 
 	// Point to the new routine
-	m_PC = normalizedAddress;
+	setPC(normalizedAddress);
 
 	auto numberOfLocals = readNextByte();
 	auto stackFrame = allocateNewFrame(returnAddress, numberOfLocals, returnVariable);
@@ -333,7 +367,7 @@ void Story::returnFromCall(Word result)
 	m_Frames.pop();
 
 	m_StackSpace.revertToFrame(returnFrame);
-	m_PC = returnFrame.getReturnAddress();
+	setPC(returnFrame.getReturnAddress());
 
 	// The result goes back into a variable...
 	auto resultVariableID = returnFrame.getResultVariable();

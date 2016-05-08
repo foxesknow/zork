@@ -38,6 +38,8 @@ private:
 private:
 	void ThrowNotImplemented(const OpcodeDetails opcodeDetails) const;
 
+	void setPC(Address address);
+
 	int getFileSize() const;
 
 	void buildAbbreviationCache();
@@ -83,24 +85,69 @@ private:
 	void executeNextInstruction();
 
 	void executeOP0(const OpcodeDetails &opcodeDetails);
+	
 	void executeOP1(const OpcodeDetails &opcodeDetails, OperandType type1);
+	void handle_jz(OperandType type1);
+	void handle_get_sibling(OperandType type1);
+	void handle_get_child(OperandType type1);
+	void handle_get_parent(OperandType type1);
+	void handle_get_prop_len(OperandType type1);
+	void handle_inc(OperandType type1);
+	void handle_dec(OperandType type1);
+	void handle_print_addr(OperandType type1);
+	void handle_call_1s(OperandType type1);
+	void handle_remove_obj(OperandType type1);
+	void handle_print_obj(OperandType type1);
+	void handle_ret(OperandType type1);
+	void handle_jump(OperandType type1);
+	void handle_print_paddr(OperandType type1);
+	void handle_load(OperandType type1);
+
+
 	void executeOP2(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_je(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_jl(OperandType type1, OperandType type2);
+	void handle_jg(OperandType type1, OperandType type2);
+	void handle_dec_chk(OperandType type1, OperandType type2);
+	void handle_inc_chk(OperandType type1, OperandType type2);
+	void handle_jin(OperandType type1, OperandType type2);
+	void handle_test(OperandType type1, OperandType type2);
+	void handle_or(OperandType type1, OperandType type2);
+	void handle_and(OperandType type1, OperandType type2);
+	void handle_test_attr(OperandType type1, OperandType type2);
+	void handle_set_attr(OperandType type1, OperandType type2);
+	void handle_clear_attr(OperandType type1, OperandType type2);
+	void handle_store(OperandType type1, OperandType type2);
+	void handle_insert_obj(OperandType type1, OperandType type2);
+	void handle_loadw(OperandType type1, OperandType type2);
+	void handle_loadb(OperandType type1, OperandType type2);
+	void handle_get_prop(OperandType type1, OperandType type2);
+	void handle_get_prop_addr(OperandType type1, OperandType type2);
+	void handle_get_next_prop(OperandType type1, OperandType type2);
+	void handle_add(OperandType type1, OperandType type2);
+	void handle_sub(OperandType type1, OperandType type2);
+	void handle_mul(OperandType type1, OperandType type2);
+	void handle_div(OperandType type1, OperandType type2);
+	void handle_mod(OperandType type1, OperandType type2);
+	void handle_call_2s(OperandType type1, OperandType type2);
+	void handle_call_2n(OperandType type1, OperandType type2);
+	void handle_throw(OperandType type1, OperandType type2);
+
+
 	void executeVAR(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void executeEXT(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 
 	void executeOP0_OP185();
 
-	void executeOP2_OP17(Word objectID, Word propertyID, Byte variableID);
-	void executeOP2_OP18(Word objectID, Word propertyID, Byte variableID);
-	void executeOP2_OP19(Word objectID, Word propertyID, Byte variableID);
-
 	void executeVAR_OP228(Address textAddress, Address parseAddress);
 
 	/** Stores a variable value */
 	void storeVariable(Byte variableID, Word value);
+	void storeVariableInPlace(Byte variableID, Word value);
 	
 	/** Loads a variable */
 	Word loadVariable(Byte variableID);
+	Word loadVariableInPlace(Byte variableID);
 
 	/** Reads the variable id from the PC */
 	Byte readVariableID()

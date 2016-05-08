@@ -55,6 +55,11 @@ public:
 		return m_Stack[--m_SP];
 	}
 
+	Word peek() const
+	{
+		return m_Stack[m_SP];
+	}
+
 	StackFrame allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Word resultVariable)
 	{
 		auto sp=m_SP;

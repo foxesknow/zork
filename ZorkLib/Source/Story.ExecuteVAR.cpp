@@ -116,7 +116,7 @@ void Story::executeVAR(const OpcodeDetails &opcodeDetails, OperandType type1, Op
 		{
 			Byte variableID = static_cast<Byte>(a);
 			auto value = m_StackSpace.pop();
-			storeVariable(variableID, value);
+			storeVariableInPlace(variableID, value);
 
 			break;
 		}
