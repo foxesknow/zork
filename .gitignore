@@ -3,3 +3,13 @@
 ################################################################################
 
 *.sdf
+/ZorkConsole/Debug
+/ZorkConsole/ZorkConsole/Debug
+/ZorkConsole/ZorkConsole/x64/Debug
+/StoryFiles/minizork.infodump.txt~
+/ZorkConsole/ZorkConsole.VC.VC.opendb
+/ZorkConsole/ZorkConsole.VC.db
+/ZorkConsole/ZorkConsole/ZorkConsole.vcxproj.user
+/ZorkConsole/x64/Debug
+/ZorkConsole/ipch/ZORKCONSOLE-445fe39
+/ZorkConsole/.vs/ZorkConsole/v14
