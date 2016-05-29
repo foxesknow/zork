@@ -22,7 +22,7 @@ void Story::run()
 
 	for(;;)
 	{
-		if(m_PC == 0x8523 || m_PC == 0x6add)
+		if(m_PC < 0x20f)
 		{
 			//std::cout << "Break" << std::endl;
 		}

@@ -135,11 +135,20 @@ private:
 
 
 	void executeVAR(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_call(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_storew(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_storeb(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_put_prop(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_sread(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_print_char(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_print_num(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_random(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_push(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_pull(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+
 	void executeEXT(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 
 	void executeOP0_OP185();
-
-	void executeVAR_OP228(Address textAddress, Address parseAddress);
 
 	/** Stores a variable value */
 	void storeVariable(Byte variableID, Word value);
