@@ -85,6 +85,14 @@ private:
 	void executeNextInstruction();
 
 	void executeOP0(const OpcodeDetails &opcodeDetails);
+	void handle_rtrue();
+	void handle_rfalse();
+	void handle_print(const OP0_Opcodes &opcode);
+	void handle_ret_popped();
+	void handle_pop_catch();
+	void handle_newline();
+	void handle_verify();
+	void handle_piracy();
 	
 	void executeOP1(const OpcodeDetails &opcodeDetails, OperandType type1);
 	void handle_jz(OperandType type1);
@@ -147,8 +155,6 @@ private:
 	void handle_pull(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 
 	void executeEXT(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
-
-	void executeOP0_OP185();
 
 	/** Stores a variable value */
 	void storeVariable(Byte variableID, Word value);

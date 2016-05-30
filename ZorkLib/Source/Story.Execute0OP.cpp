@@ -9,36 +9,18 @@ void Story::executeOP0(const OpcodeDetails &opcodeDetails)
 
 	switch(opcode)
 	{
-		case OP0_Opcodes::OP176: // rtrue
-		{
-			returnFromCall(1);
+		case OP0_Opcodes::OP176: 
+			handle_rtrue();
 			break;
-		}
 
-		case OP0_Opcodes::OP177: // rfalse
-		{
-			returnFromCall(0);
+		case OP0_Opcodes::OP177:
+			handle_rtrue();
 			break;
-		}
 
-		case OP0_Opcodes::OP178: // print
-		case OP0_Opcodes::OP179: // print_ret
-		{
-			AddressSpaceZsciiReader reader(m_AddressSpace, m_PC);
-			auto string = readString(reader);
-			m_Console->print(string);
-
-			if(opcode == OP0_Opcodes::OP178)
-			{
-				setPC(increaseWordAddress(reader.getAddress(), 1)); // +1 as the address is the end of the string
-			}
-			else
-			{
-				returnFromCall(1);
-			}
-
+		case OP0_Opcodes::OP178:
+		case OP0_Opcodes::OP179:
+			handle_print(opcode);
 			break;
-		}
 
 		case OP0_Opcodes::OP180: // nop
 		{
@@ -46,78 +28,21 @@ void Story::executeOP0(const OpcodeDetails &opcodeDetails)
 			break;
 		}
 
-		case OP0_Opcodes::OP181:
-		{
-			ThrowNotImplemented(opcodeDetails);
+		case OP0_Opcodes::OP184:
+			handle_ret_popped();
 			break;
-		}
 
-		case OP0_Opcodes::OP182:
-		{
-			ThrowNotImplemented(opcodeDetails);
+		case OP0_Opcodes::OP185: 
+			handle_pop_catch();
 			break;
-		}
 
-		case OP0_Opcodes::OP183:
-		{
-			ThrowNotImplemented(opcodeDetails);
+		case OP0_Opcodes::OP187:
+			handle_newline();
 			break;
-		}
 
-		case OP0_Opcodes::OP184: // ret_popped
-		{
-			// Return the item on the top of the stack
-			auto returnValue = loadVariable(0);
-			returnFromCall(returnValue);
+		case OP0_Opcodes::OP189: 
+			handle_verify();
 			break;
-		}
-
-		case OP0_Opcodes::OP185: // (v1) pop, (v5-v6) catch
-		{
-			executeOP0_OP185();
-			break;
-		}
-
-		case OP0_Opcodes::OP186:
-		{
-			ThrowNotImplemented(opcodeDetails);
-			break;
-		}
-
-		case OP0_Opcodes::OP187: // new_line
-		{
-			m_Console->newline();
-			break;
-		}
-
-		case OP0_Opcodes::OP188:
-		{
-			ThrowNotImplemented(opcodeDetails);
-			break;
-		}
-
-		case OP0_Opcodes::OP189: // verify ?(label)
-		{
-			if(m_Version < 3) panic("op0_op189 requires v3 or more");
-
-			Address nextByte = 0x40;
-			auto fileSize = getFileSize();
-			Word calculatedChecksum = 0;
-
-			for(int i = 0; i < fileSize; i++)
-			{
-				// NOTE: This is intended to overflow
-				calculatedChecksum += m_AddressSpace.readByte(nextByte++);
-			}
-
-			Word checksumFromHeader = m_AddressSpace.readWord(0x1c);
-			auto outcome = ( calculatedChecksum == checksumFromHeader);
-
-			auto branchDetails = readBranchDetails();
-			if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
-
-			break;
-		}
 
 		case OP0_Opcodes::OP190:
 		{
@@ -126,21 +51,9 @@ void Story::executeOP0(const OpcodeDetails &opcodeDetails)
 			break;
 		}
 
-		case OP0_Opcodes::OP191: // piracy ?(label)
-		{
-			if(m_Version >= 5)
-			{
-				bool genuine = true;
-				auto branchDetails = readBranchDetails();
-				if(branchDetails.shouldBranch(genuine)) applyBranch(branchDetails);
-			}
-			else
-			{
-				panic("op0_op191 not supported in this version");
-			}
-
+		case OP0_Opcodes::OP191:
+			handle_piracy();
 			break;
-		}
 
 		default:
 		{
@@ -150,8 +63,50 @@ void Story::executeOP0(const OpcodeDetails &opcodeDetails)
 	}
 }
 
-void Story::executeOP0_OP185()
+void Story::handle_rtrue()
 {
+	// rtrue
+	returnFromCall(1);
+}
+
+void Story::handle_rfalse()
+{
+	// rtrue
+	returnFromCall(0);
+}
+
+void Story::handle_print(const OP0_Opcodes &opcode)
+{
+	AddressSpaceZsciiReader reader(m_AddressSpace, m_PC);
+	auto string = readString(reader);
+	m_Console->print(string);
+
+	if(opcode == OP0_Opcodes::OP178)
+	{
+		setPC(increaseWordAddress(reader.getAddress(), 1)); // +1 as the address is the end of the string
+	}
+	else if(opcode == OP0_Opcodes::OP179)
+	{
+		returnFromCall(1);
+	}
+	else
+	{
+		panic("unexpected opcode");
+	}
+}
+
+void Story::handle_ret_popped()
+{
+	// ret_popped
+	// Return the item on the top of the stack
+	auto returnValue = loadVariable(0);
+	returnFromCall(returnValue);
+}
+
+void Story::handle_pop_catch()
+{
+	// (v1) pop, (v5-v6) catch
+
 	if(m_Version < 4) // pop
 	{
 		// It's a pop. Just throw away the value
@@ -166,6 +121,48 @@ void Story::executeOP0_OP185()
 	else
 	{
 		panic("op0_op185 not supported in this version");
+	}
+}
+
+void Story::handle_newline()
+{
+	m_Console->newline();
+}
+
+void Story::handle_verify()
+{
+	// verify ?(label)
+	if(m_Version < 3) panic("op0_op189 requires v3 or more");
+
+	Address nextByte = 0x40;
+	auto fileSize = getFileSize();
+	Word calculatedChecksum = 0;
+
+	for(int i = 0; i < fileSize; i++)
+	{
+		// NOTE: This is intended to overflow
+		calculatedChecksum += m_AddressSpace.readByte(nextByte++);
+	}
+
+	Word checksumFromHeader = m_AddressSpace.readWord(0x1c);
+	auto outcome = ( calculatedChecksum == checksumFromHeader);
+
+	auto branchDetails = readBranchDetails();
+	if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
+}
+
+void Story::handle_piracy()
+{
+	// piracy ?(label)
+	if(m_Version >= 5)
+	{
+		bool genuine = true;
+		auto branchDetails = readBranchDetails();
+		if(branchDetails.shouldBranch(genuine)) applyBranch(branchDetails);
+	}
+	else
+	{
+		panic("op0_op191 not supported in this version");
 	}
 }
 
