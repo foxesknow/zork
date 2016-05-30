@@ -50,6 +50,18 @@ void Story::executeVAR(const OpcodeDetails &opcodeDetails, OperandType type1, Op
 			handle_pull(type1, type2, type3, type4);
 			break;
 
+		case VAR_Opcodes::OP248:
+			handle_not(type1);
+			break;
+
+		case VAR_Opcodes::OP249:
+			handle_call_vn(type1, type2, type3, type4);
+			break;
+
+		case VAR_Opcodes::OP255:
+			handle_check_arg_count(type1, type2, type3, type4);
+			break;
+
 		default:
 			ThrowNotImplemented(opcodeDetails);
 			break;
@@ -71,6 +83,21 @@ void Story::handle_call(OperandType type1, OperandType type2, OperandType type3,
 	auto variableID = readVariableID();
 
 	callRoutine(address, variableID, arguments);
+}
+
+void Story::handle_call_vn(OperandType type1, OperandType type2, OperandType type3, OperandType type4)
+{
+	// call routine 1..3 args
+	const Word address = (IsPresent(type1) ? read(type1) : 0);
+
+	auto arguments = createArguments({});
+
+	// After the address are the potential arguments
+	if(IsPresent(type2)) arguments.push_back(read(type2));
+	if(IsPresent(type3)) arguments.push_back(read(type3));
+	if(IsPresent(type4)) arguments.push_back(read(type4));
+
+	callRoutine(address, DiscardResultsVariable, arguments);
 }
 
 void Story::handle_storew(OperandType type1, OperandType type2, OperandType type3, OperandType)
@@ -212,15 +239,29 @@ void Story::handle_push(OperandType type1, OperandType, OperandType, OperandType
 {
 	// push value
 	auto value = read(type1);
-	m_StackSpace.push(value);
+	push(value);
 }
 
 void Story::handle_pull(OperandType type1, OperandType, OperandType, OperandType)
 {
 	// pull (variable)
 	Byte variableID = static_cast<Byte>(read(type1));
-	auto value = m_StackSpace.pop();
+	auto value = pop();
 	storeVariableInPlace(variableID, value);
+}
+
+void Story::handle_check_arg_count(OperandType type1, OperandType type2, OperandType type3, OperandType type4)
+{
+	// check_arg_count argument-number
+	const auto argumentNumber = read(type1);
+
+	const auto &currentStackFrame = m_Frames.top();
+
+	// The argument numbers are 1-based
+	bool argumentPresent = (currentStackFrame.getNumberOfParameters() >= (size_t)argumentNumber);
+
+	auto branchDetails = readBranchDetails();
+	if(branchDetails.shouldBranch(argumentPresent)) applyBranch(branchDetails);
 }
 
 } // end of namespace

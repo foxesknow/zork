@@ -76,6 +76,10 @@ inline void panic(const std::string &message)
 	throw Exception(message);
 }
 
+inline void doNothing()
+{
+}
+
 class DictionaryEntry
 {
 private:

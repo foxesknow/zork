@@ -16,8 +16,9 @@ int main()
 {
 	using namespace zork;
 
-    std::string filename="f:\\Git\\zork\\StoryFiles\\minizork.z3";
+    //std::string filename="f:\\Git\\zork\\StoryFiles\\minizork.z3";
 	//std::string filename="f:\\Git\\zork\\StoryFiles\\Zork\\zork1.z5";
+	std::string filename="f:\\Git\\zork\\StoryFiles\\czech\\czech.z5";
 
 	AddressSpace addressSpace = zork::loadAddressSpaceFromFile(filename);
 	auto console = std::make_shared<TextConsole>();

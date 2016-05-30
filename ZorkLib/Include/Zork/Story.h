@@ -84,6 +84,10 @@ private:
 	/** Executes the next statement */
 	void executeNextInstruction();
 
+	void push(Word value);
+	Word pop();
+	Word peek();
+
 	void executeOP0(const OpcodeDetails &opcodeDetails);
 	void handle_rtrue();
 	void handle_rfalse();
@@ -110,6 +114,8 @@ private:
 	void handle_jump(OperandType type1);
 	void handle_print_paddr(OperandType type1);
 	void handle_load(OperandType type1);
+	void handle_not(OperandType type1);
+	void handle_call_1n(OperandType type1);
 
 
 	void executeOP2(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
@@ -144,6 +150,7 @@ private:
 
 	void executeVAR(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_call(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_call_vn(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_storew(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_storeb(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_put_prop(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
@@ -153,8 +160,10 @@ private:
 	void handle_random(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_push(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_pull(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_check_arg_count(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 
 	void executeEXT(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_art_shift(OperandType type1, OperandType type2);
 
 	/** Stores a variable value */
 	void storeVariable(Byte variableID, Word value);
@@ -197,7 +206,7 @@ private:
 	void callRoutine(Address routineAddress, Word returnVariable, const std::vector<Word> &arguments);
 
 	/** Allocates a new stack frame for a routine */
-	StackFrame allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Word returnVariable);
+	StackFrame allocateNewFrame(Address returnAddress, size_t numberOfParameters, unsigned int numberOfLocals, Word returnVariable);
 	
 	/** Returns from a routine */
 	void returnFromCall(Word result);

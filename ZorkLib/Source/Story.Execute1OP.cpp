@@ -66,11 +66,20 @@ void Story::executeOP1(const OpcodeDetails &opcodeDetails, OperandType type1)
 			handle_load(type1);
 			break;
 
+		case OP1_Opcodes::OP143:
+			if(m_Version < 5)
+			{
+				handle_not(type1);
+			}
+			else
+			{
+				handle_call_1n(type1);
+			}
+			break;
+
 		default:
-		{
 			ThrowNotImplemented(opcodeDetails);
 			break;
-		}
 	}
 }
 
@@ -138,7 +147,6 @@ void Story::handle_get_prop_len(OperandType)
 void Story::handle_inc(OperandType type1)
 {
 	// inc (variable)
-
 	const auto a = read(type1);
 
 	// TODO: This needs fixing!
@@ -153,7 +161,6 @@ void Story::handle_inc(OperandType type1)
 void Story::handle_dec(OperandType type1)
 {
 	// dec (variable)
-
 	const auto a = read(type1);
 
 	// TODO: This needs fixing
@@ -179,10 +186,10 @@ void Story::handle_call_1s(OperandType type1)
 {
 	// call_1s routine -> (result)
 
-	const auto a = read(type1);
+	const auto routineAddress = read(type1);
 
 	auto variableID = readVariableID();
-	callRoutine(a, variableID, createArguments({}));
+	callRoutine(routineAddress, variableID, createArguments({}));
 }
 
 void Story::handle_remove_obj(OperandType type1)
@@ -243,8 +250,23 @@ void Story::handle_load(OperandType type1)
 	auto variableID = static_cast<Byte>(a);
 	auto value = loadVariableInPlace(variableID);
 	auto target = readVariableID();
-	storeVariableInPlace(target, value);
+	storeVariable(target, value);
 }
 
+void Story::handle_not(OperandType type1)
+{
+	// not value -> (result)
+	const auto value = read(type1);
+	auto variableID = readVariableID();
+	storeVariable(variableID, ~value);
+}
+
+void Story::handle_call_1n(OperandType type1)
+{
+	// call_1n routine
+
+	const auto routineAddress = read(type1);
+	callRoutine(routineAddress, DiscardResultsVariable, createArguments({}));
+}
 
 } // end of namespace

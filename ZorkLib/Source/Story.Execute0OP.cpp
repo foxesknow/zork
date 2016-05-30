@@ -23,10 +23,8 @@ void Story::executeOP0(const OpcodeDetails &opcodeDetails)
 			break;
 
 		case OP0_Opcodes::OP180: // nop
-		{
 			// Do nothing!
 			break;
-		}
 
 		case OP0_Opcodes::OP184:
 			handle_ret_popped();
@@ -45,21 +43,17 @@ void Story::executeOP0(const OpcodeDetails &opcodeDetails)
 			break;
 
 		case OP0_Opcodes::OP190:
-		{
 			// We shouldn't get here as executeNextInstruction should have handled this
 			panic("op0_op190 should have been handled by executeNextInstruction");
 			break;
-		}
 
 		case OP0_Opcodes::OP191:
 			handle_piracy();
 			break;
 
 		default:
-		{
 			ThrowNotImplemented(opcodeDetails);
 			break;
-		}
 	}
 }
 
@@ -110,7 +104,7 @@ void Story::handle_pop_catch()
 	if(m_Version < 4) // pop
 	{
 		// It's a pop. Just throw away the value
-		m_StackSpace.pop();
+		pop();
 	}
 	else if(m_Version == 5 || m_Version == 6) // catch -> (result)
 	{

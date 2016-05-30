@@ -18,11 +18,11 @@ void Story::run()
 		setPC(expandPackedRoutineAddress(address));
 	}
 
-	allocateNewFrame(0,0,DiscardResultsVariable);
+	allocateNewFrame(0, 0, 0, DiscardResultsVariable);
 
 	for(;;)
 	{
-		if(m_PC < 0x20f)
+		if(m_PC == 0xcce)
 		{
 			//std::cout << "Break" << std::endl;
 		}
@@ -76,36 +76,38 @@ void Story::executeNextInstruction()
 
 	auto operandCount = opcodeDetails.getOperandCount();
 
-	switch(operandCount)
+	if(m_Version >= 5 && opcodeDetails.getEncodedOpcode() == 190)
 	{
-		case OperandCount::OP0:
-			if(opcodeForm == OpcodeForm::Extended)
-			{
-				executeEXT(opcodeDetails, type1, type2, type3, type4);
-			}
-			else
-			{
-				executeOP0(opcodeDetails);
-			}
-			break;
-
-		case OperandCount::OP1:
-			executeOP1(opcodeDetails ,type1);
-			break;
-
-		case OperandCount::OP2:
-			executeOP2(opcodeDetails, type1, type2, type3, type4);
-			break;
-
-		case OperandCount::Variable:
-			executeVAR(opcodeDetails, type1, type2, type3, type4);
-			break;
+		executeEXT(opcodeDetails, type1, type2, type3, type4);
 	}
-}
+	else
+	{
+		switch(operandCount)
+		{
+			case OperandCount::OP0:
+				if(opcodeForm == OpcodeForm::Extended)
+				{
+					executeEXT(opcodeDetails, type1, type2, type3, type4);
+				}
+				else
+				{
+					executeOP0(opcodeDetails);
+				}
+				break;
 
-void Story::executeEXT(const OpcodeDetails &opcodeDetails, OperandType , OperandType , OperandType , OperandType )
-{
-	ThrowNotImplemented(opcodeDetails);
+			case OperandCount::OP1:
+				executeOP1(opcodeDetails ,type1);
+				break;
+
+			case OperandCount::OP2:
+				executeOP2(opcodeDetails, type1, type2, type3, type4);
+				break;
+
+			case OperandCount::Variable:
+				executeVAR(opcodeDetails, type1, type2, type3, type4);
+				break;
+		}
+	}
 }
 
 void Story::storeVariable(Byte variableID, Word value)
@@ -113,7 +115,7 @@ void Story::storeVariable(Byte variableID, Word value)
 	if(variableID == TopOfStack)
 	{
 		// Variable 0 means top of stack
-		m_StackSpace.push(value);
+		push(value);
 	}
 	else if(variableID >= BeginLocal && variableID <= EndLocal)
 	{
@@ -134,8 +136,8 @@ void Story::storeVariableInPlace(Byte variableID, Word value)
 	if(variableID == 0)
 	{
 		// We write over the top of the stack
-		m_StackSpace.pop();
-		m_StackSpace.push(value);
+		pop();
+		push(value);
 	}
 	else
 	{
@@ -148,7 +150,7 @@ Word Story::loadVariable(Byte variableID)
 	if(variableID == TopOfStack)
 	{
 		// Variable 0 means top of stack
-		return m_StackSpace.pop();
+		return pop();
 	}
 	else if(variableID >= BeginLocal && variableID <= EndLocal)
 	{
@@ -169,7 +171,7 @@ Word Story::loadVariableInPlace(Byte variableID)
 	if(variableID == 0)
 	{
 		// We return the peek of the stack
-		return m_StackSpace.peek();
+		return peek();
 	}
 	else
 	{
@@ -305,9 +307,9 @@ void Story::applyBranch(SWord offset)
 	}
 }
 
-StackFrame Story::allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Word returnVariable)
+StackFrame Story::allocateNewFrame(Address returnAddress, size_t numberOfParameters, unsigned int numberOfLocals, Word returnVariable)
 {
-	auto stackFrame = m_StackSpace.allocateNewFrame(returnAddress, numberOfLocals, returnVariable);
+	auto stackFrame = m_StackSpace.allocateNewFrame(returnAddress, numberOfParameters, numberOfLocals, returnVariable);
 	m_Frames.push(stackFrame);
 
 	return stackFrame;
@@ -330,7 +332,7 @@ void Story::callRoutine(Address routineAddress, Word returnVariable, const std::
 	setPC(normalizedAddress);
 
 	auto numberOfLocals = readNextByte();
-	auto stackFrame = allocateNewFrame(returnAddress, numberOfLocals, returnVariable);
+	auto stackFrame = allocateNewFrame(returnAddress, arguments.size(), numberOfLocals, returnVariable);
 
 	// The local default values are stored next
 	if(m_Version <= 4)
@@ -391,5 +393,44 @@ void Story::unwindToFrame(Word frameID)
 	}
 }
 
+void Story::push(Word value)
+{
+	m_StackSpace.push(value);
+
+#ifdef _DEBUG
+	if((m_StackSpace.getSP() - m_Frames.top().getBase()) < m_Frames.top().getNumberOfLocals()) 
+	{
+		panic("oops");
+	}
+#endif
+}
+
+Word Story::pop()
+{
+	auto value = m_StackSpace.pop();
+
+#ifdef _DEBUG
+	if((m_StackSpace.getSP() - m_Frames.top().getBase()) < m_Frames.top().getNumberOfLocals()) 
+	{
+		panic("oops");
+	}
+#endif
+
+	return value;
+}
+
+Word Story::peek()
+{
+	auto value = m_StackSpace.peek();
+
+#ifdef _DEBUG
+	if((m_StackSpace.getSP() - m_Frames.top().getBase()) < m_Frames.top().getNumberOfLocals()) 
+	{
+		panic("oops");
+	}
+#endif
+
+	return value;
+}
 
 } // end of namespace

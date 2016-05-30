@@ -242,6 +242,13 @@ enum class VAR_Opcodes
 	OP255,	// (v5) check_arg_count
 };
 
+enum class EXT_Opcodes
+{
+	OP0,	// (v5) save
+	OP1,	// (v5) restore
+	OP2,	// (v5) log_shift
+	OP3,	// (v5) art_shift
+};
 
 class BranchDetails
 {

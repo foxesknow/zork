@@ -167,8 +167,6 @@ void Story::handle_jg(OperandType type1, OperandType type2)
 
 void Story::handle_dec_chk(OperandType type1, OperandType type2)
 {
-	// TODO: Fix this
-
 	// dec_chk (variable) value ?(label)
 	const Word a = read(type1);
 	const Word b = read(type2);
@@ -185,8 +183,6 @@ void Story::handle_dec_chk(OperandType type1, OperandType type2)
 
 void Story::handle_inc_chk(OperandType type1, OperandType type2)
 {
-	// TODO: Fix this
-
 	// inc_chk (variable) value ?(label)
 	const Word a = read(type1);
 	const Word b = read(type2);

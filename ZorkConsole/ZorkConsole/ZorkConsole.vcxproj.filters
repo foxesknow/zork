@@ -101,5 +101,8 @@
     <ClCompile Include="..\..\ZorkLib\Source\Story.ExecuteVAR.cpp">
       <Filter>ZorkLib\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ZorkLib\Source\Story.ExecuteEXT.cpp">
+      <Filter>ZorkLib\Source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

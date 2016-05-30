@@ -13,10 +13,17 @@ private:
 	unsigned int m_Base;
 	Address m_ReturnAddress;
 	Word m_ResultVariable;
+	size_t m_NumberOfParameters;
+	unsigned int m_NumberOfLocals;
 
 public:
-	StackFrame(unsigned int base, Address returnAddress, Word resultVariable) : m_Base(base), m_ReturnAddress(returnAddress), m_ResultVariable(resultVariable)
+	StackFrame(unsigned int base, Address returnAddress, Word resultVariable, size_t numberOfParameters, unsigned int numberOfLocals) 
+		: m_Base(base), m_ReturnAddress(returnAddress), m_ResultVariable(resultVariable), m_NumberOfParameters(numberOfParameters), m_NumberOfLocals(numberOfLocals)
 	{
+		if(m_Base == 2)
+		{
+			doNothing();
+		}
 	}
 
 	unsigned int getBase()const
@@ -24,14 +31,29 @@ public:
 		return m_Base;
 	}
 
-	Address getReturnAddress()const
+	Address getReturnAddress() const
 	{
 		return m_ReturnAddress;
 	}
 
-	Word getResultVariable()const
+	Word getResultVariable() const
 	{
 		return m_ResultVariable;
+	}
+
+	size_t getNumberOfParameters() const
+	{
+		return m_NumberOfParameters;
+	}
+
+	unsigned int getNumberOfLocals() const
+	{
+		return m_NumberOfLocals;
+	}
+
+	unsigned int getPushBase() const
+	{
+		return m_Base + m_NumberOfLocals;
 	}
 };
 
@@ -52,22 +74,27 @@ public:
 
 	Word pop()
 	{
-		return m_Stack[--m_SP];
+		if(m_SP == 0) panic("the stack is empty!");
+
+		auto value = m_Stack[--m_SP];
+		m_Stack[m_SP] = 0xcccc;
+		return value;
 	}
 
 	Word peek() const
 	{
-		return m_Stack[m_SP];
+		if(m_SP == 0) panic("the stack is empty!");
+		return m_Stack[m_SP-1];
 	}
 
-	StackFrame allocateNewFrame(Address returnAddress, unsigned int numberOfLocals, Word resultVariable)
+	StackFrame allocateNewFrame(Address returnAddress, size_t numberOfParameters, unsigned int numberOfLocals, Word resultVariable)
 	{
 		auto sp=m_SP;
 
 		// Reserve space for local variables
 		m_SP += numberOfLocals;
 
-		return StackFrame(sp, returnAddress, resultVariable);
+		return StackFrame(sp, returnAddress, resultVariable, numberOfParameters, numberOfLocals);
 	}
 
 	void revertToFrame(const StackFrame &frameInfo)
@@ -82,6 +109,11 @@ public:
 
 	Word getLocal(const StackFrame &frameInfo, unsigned int localIndex)const
 	{
+		if(localIndex == 0 || localIndex > frameInfo.getNumberOfLocals())
+		{
+			panic("invalid local index");
+		}
+
 		auto zeroBasedIndex = localIndex - 1;
 		auto location = frameInfo.getBase() + zeroBasedIndex;
 		return m_Stack[location];
@@ -89,9 +121,19 @@ public:
 
 	void setLocal(const StackFrame &frameInfo, unsigned int localIndex, Word value)
 	{
+		if(localIndex == 0 || localIndex > frameInfo.getNumberOfLocals())
+		{
+			panic("invalid local index");
+		}
+		
 		auto zeroBasedIndex = localIndex - 1;
 		auto location = frameInfo.getBase() + zeroBasedIndex;
 		m_Stack[location] = value;
+	}
+
+	unsigned int getSP() const
+	{
+		return m_SP;
 	}
 };
 
