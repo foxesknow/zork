@@ -20,14 +20,16 @@ void Story::run()
 
 	allocateNewFrame(0, 0, 0, DiscardResultsVariable);
 
-	for(;;)
+	m_KeepRunning = true;
+
+	while(m_KeepRunning)
 	{
 		if(m_PC == 0xcce)
 		{
 			//std::cout << "Break" << std::endl;
 		}
 
-		//std::cout << std::hex << m_PC << std::dec << std::endl;
+		std::cout << std::hex << m_PC << std::dec << std::endl;
 
 		executeNextInstruction();
 		//std::cout << std::hex << m_PC << std::endl;
@@ -67,10 +69,7 @@ void Story::executeNextInstruction()
 		case OpcodeForm::Variable:
 		case OpcodeForm::Extended:
 			Byte packed = readNextByte();
-			type4=ToOperandType(packed & 3); packed >>= 2;
-			type3=ToOperandType(packed & 3); packed >>= 2;
-			type2=ToOperandType(packed & 3); packed >>= 2;
-			type1=ToOperandType(packed & 3);
+			unpackOperandTypes(packed, type1, type2, type3, type4);
 			break;
 	}
 
@@ -108,6 +107,14 @@ void Story::executeNextInstruction()
 				break;
 		}
 	}
+}
+
+void Story::unpackOperandTypes(Byte encodedValue, OperandType &type1, OperandType &type2, OperandType &type3, OperandType &type4) const
+{
+	type4=ToOperandType(encodedValue & 3); encodedValue >>= 2;
+	type3=ToOperandType(encodedValue & 3); encodedValue >>= 2;
+	type2=ToOperandType(encodedValue & 3); encodedValue >>= 2;
+	type1=ToOperandType(encodedValue & 3);
 }
 
 void Story::storeVariable(Byte variableID, Word value)
@@ -183,14 +190,7 @@ OpcodeDetails Story::decode()
 {
 	auto baseAddress = m_PC;
 
-	if(baseAddress > 0xffff)
-	{
-		std::cout << "hmm" << std::endl;
-	}
-
-
 	const Byte value = readNextByte();
-
 	auto opcodeForm=ToOpcodeForm(value);
 
 	if(opcodeForm == OpcodeForm::Short)

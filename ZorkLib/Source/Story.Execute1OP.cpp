@@ -26,6 +26,10 @@ void Story::executeOP1(const OpcodeDetails &opcodeDetails, OperandType type1)
 			handle_get_parent(type1);
 			break;
 
+		case OP1_Opcodes::OP132:
+			handle_get_prop_len(type1);
+			break;
+
 		case OP1_Opcodes::OP133:
 			handle_inc(type1);
 			break;
@@ -139,9 +143,14 @@ void Story::handle_get_parent(OperandType type1)
 	storeVariable(variableID, parent);
 }
 
-void Story::handle_get_prop_len(OperandType)
+void Story::handle_get_prop_len(OperandType type1)
 {
+	auto propertyAddress = read(type1);
+	auto variableID = readVariableID();
 
+	Word size = Object::getPropertLengthForAddress(m_AddressSpace, propertyAddress, m_Version);
+
+	storeVariable(variableID, static_cast<Word>(size));
 }
 
 void Story::handle_inc(OperandType type1)
@@ -195,11 +204,8 @@ void Story::handle_call_1s(OperandType type1)
 void Story::handle_remove_obj(OperandType type1)
 {
 	// remove_obj object
-
-	const auto a = read(type1);
-
-	auto object = getObject(a);
-	object.setParent(0);
+	const auto objectID = read(type1);
+	unlinkObject(objectID);
 }
 
 void Story::handle_print_obj(OperandType type1)

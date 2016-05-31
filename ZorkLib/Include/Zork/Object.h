@@ -208,6 +208,8 @@ public:
 	{
 		return versionThreeOrLess(version, 9, 14);
 	}
+
+	static Word getPropertLengthForAddress(AddressSpace &addressSpace, Address address, int version);
 };
 
 } // end of namespace

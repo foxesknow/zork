@@ -50,8 +50,16 @@ void Story::executeVAR(const OpcodeDetails &opcodeDetails, OperandType type1, Op
 			handle_pull(type1, type2, type3, type4);
 			break;
 
+		case VAR_Opcodes::OP236:
+			handle_call_vs2(type1, type2, type3, type4);
+			break;
+
 		case VAR_Opcodes::OP248:
 			handle_not(type1);
+			break;
+
+		case VAR_Opcodes::OP250:
+			handle_call_vn2(type1, type2, type3, type4);
 			break;
 
 		case VAR_Opcodes::OP249:
@@ -250,7 +258,7 @@ void Story::handle_pull(OperandType type1, OperandType, OperandType, OperandType
 	storeVariableInPlace(variableID, value);
 }
 
-void Story::handle_check_arg_count(OperandType type1, OperandType type2, OperandType type3, OperandType type4)
+void Story::handle_check_arg_count(OperandType type1, OperandType, OperandType, OperandType)
 {
 	// check_arg_count argument-number
 	const auto argumentNumber = read(type1);
@@ -262,6 +270,63 @@ void Story::handle_check_arg_count(OperandType type1, OperandType type2, Operand
 
 	auto branchDetails = readBranchDetails();
 	if(branchDetails.shouldBranch(argumentPresent)) applyBranch(branchDetails);
+}
+
+void Story::handle_call_vs2(OperandType type1, OperandType type2, OperandType type3, OperandType type4)
+{
+	// call_vs2 routine 1..7 args -> (result)
+	auto additionalParametersEncoding = readNextByte();
+
+	OperandType type5 = OperandType::Omitted;
+	OperandType type6 = OperandType::Omitted;
+	OperandType type7 = OperandType::Omitted;
+	OperandType type8 = OperandType::Omitted;
+
+	unpackOperandTypes(additionalParametersEncoding, type5, type6, type7, type8);
+
+	const Word address = (IsPresent(type1) ? read(type1) : 0);
+
+	auto arguments = createArguments({});
+
+	// After the address are the potential arguments
+	if(IsPresent(type2)) arguments.push_back(read(type2));
+	if(IsPresent(type3)) arguments.push_back(read(type3));
+	if(IsPresent(type4)) arguments.push_back(read(type4));
+	if(IsPresent(type5)) arguments.push_back(read(type5));
+	if(IsPresent(type6)) arguments.push_back(read(type6));
+	if(IsPresent(type7)) arguments.push_back(read(type7));
+	if(IsPresent(type8)) arguments.push_back(read(type8));
+
+	auto variableID = readVariableID();
+	callRoutine(address, variableID, arguments);
+}
+
+void Story::handle_call_vn2(OperandType type1, OperandType type2, OperandType type3, OperandType type4)
+{
+	// call_vn2 routine 1..7 args
+	auto additionalParametersEncoding = readNextByte();
+
+	OperandType type5 = OperandType::Omitted;
+	OperandType type6 = OperandType::Omitted;
+	OperandType type7 = OperandType::Omitted;
+	OperandType type8 = OperandType::Omitted;
+
+	unpackOperandTypes(additionalParametersEncoding, type5, type6, type7, type8);
+
+	const Word address = (IsPresent(type1) ? read(type1) : 0);
+
+	auto arguments = createArguments({});
+
+	// After the address are the potential arguments
+	if(IsPresent(type2)) arguments.push_back(read(type2));
+	if(IsPresent(type3)) arguments.push_back(read(type3));
+	if(IsPresent(type4)) arguments.push_back(read(type4));
+	if(IsPresent(type5)) arguments.push_back(read(type5));
+	if(IsPresent(type6)) arguments.push_back(read(type6));
+	if(IsPresent(type7)) arguments.push_back(read(type7));
+	if(IsPresent(type8)) arguments.push_back(read(type8));
+
+	callRoutine(address, DiscardResultsVariable, arguments);
 }
 
 } // end of namespace

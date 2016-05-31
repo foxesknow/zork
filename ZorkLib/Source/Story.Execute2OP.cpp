@@ -214,11 +214,11 @@ void Story::handle_jin(OperandType type1, OperandType type2)
 void Story::handle_test(OperandType type1, OperandType type2)
 {
 	// test bitmap flags ?(label)
-	const Word a = read(type1);
-	const Word b = read(type2);
+	const Word bitmap = read(type1);
+	const Word flags = read(type2);
 
-	// NOTE: All the flags of b must be set
-	bool outcome = ((a & b) == a);
+	// NOTE: All the flags must be set
+	bool outcome = ((bitmap & flags) == flags);
 	auto branchDetails = readBranchDetails();
 	if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
 }
@@ -293,14 +293,18 @@ void Story::handle_store(OperandType type1, OperandType type2)
 void Story::handle_insert_obj(OperandType type1, OperandType type2)
 {
 	// insert_obj object destination
-	const Word a = read(type1);
-	const Word b = read(type2);	
+	const Word object = read(type1);
+	const Word destination = read(type2);	
 
-	unlinkObject(a);
+	auto newSibling = getObject(destination).getChild();
 
-	auto child = getObject(a);
-	auto parent = getObject(b);
-	parent.insertObject(child);
+	unlinkObject(object);
+	getObject(destination).setChild(object);
+	getObject(object).setParent(destination);
+	getObject(object).setSibling(newSibling);
+
+	auto o = getObject(object);
+	auto d = getObject(destination);
 }
 
 void Story::handle_loadw(OperandType type1, OperandType type2)

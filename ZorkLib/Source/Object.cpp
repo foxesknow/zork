@@ -3,6 +3,43 @@
 namespace zork
 {
 
+Word Object::getPropertLengthForAddress(AddressSpace &addressSpace, Address address, int version)
+{
+	/*
+	 * This one's a bit odd as the address is the address of the property, not the size field before it...
+	 * If you pass an address of 0 then the property size is 0
+	 * Up to V3 the size is on the byte before the property
+	 * After V3 the size field can be 1 or 2 bytes. However, the way the encoding works the size 
+	 * can always be inferred from the byte before the property.
+	 * If the high-bit is set then the bottom 6 bit contain the size
+	 * If the high bit isn't set then if bit-6 is set the size is 2, otherwise it's 1
+	 */
+	if(address == 0) return 0;
+
+	bool v3OrLess = versionThreeOrLess(version, true, false);
+	auto b = addressSpace.readByte(address - 1);
+	Word size = 0;
+
+	if(v3OrLess)
+	{
+		size = (b >> 5) + 1;
+	}
+	else
+	{
+		if(b & 128)
+		{
+			size = (b & 63);
+			if(size == 0) size = 64;
+		}
+		else
+		{
+			size = (b & 64 ? 2 : 1);
+		}
+	}
+
+	return size;
+}
+
 std::tuple<Address,int,Word,bool> Object::getPropertyBlockInfo(Address address)const
 {
 	// TODO: Handle version 4 and above!

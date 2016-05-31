@@ -129,7 +129,7 @@ void Story::unlinkObject(Word objectID)
 	if(firstSibling == objectID)
 	{
 		// Easy, we're removing the first child, so the parent's child property is just the next sibling
-		object.setChild(nextSibling);
+		parent.setChild(nextSibling);
 	}
 	else
 	{

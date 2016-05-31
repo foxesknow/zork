@@ -35,6 +35,8 @@ private:
 	std::set<DictionaryEntry> m_Dictionary;
 	std::string m_WordSeparators;
 
+	bool m_KeepRunning;
+
 private:
 	void ThrowNotImplemented(const OpcodeDetails opcodeDetails) const;
 
@@ -88,6 +90,8 @@ private:
 	Word pop();
 	Word peek();
 
+	void unpackOperandTypes(Byte encodedValue, OperandType &type1, OperandType &type2, OperandType &type3, OperandType &type4) const;
+
 	void executeOP0(const OpcodeDetails &opcodeDetails);
 	void handle_rtrue();
 	void handle_rfalse();
@@ -97,6 +101,7 @@ private:
 	void handle_newline();
 	void handle_verify();
 	void handle_piracy();
+	void handle_quit();
 	
 	void executeOP1(const OpcodeDetails &opcodeDetails, OperandType type1);
 	void handle_jz(OperandType type1);
@@ -151,6 +156,8 @@ private:
 	void executeVAR(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_call(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_call_vn(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_call_vs2(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
+	void handle_call_vn2(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_storew(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_storeb(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_put_prop(OperandType type1, OperandType type2, OperandType type3, OperandType type4);
@@ -164,6 +171,7 @@ private:
 
 	void executeEXT(const OpcodeDetails &opcodeDetails, OperandType type1, OperandType type2, OperandType type3, OperandType type4);
 	void handle_art_shift(OperandType type1, OperandType type2);
+	void handle_log_shift(OperandType type1, OperandType type2);
 
 	/** Stores a variable value */
 	void storeVariable(Byte variableID, Word value);

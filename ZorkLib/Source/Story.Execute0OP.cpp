@@ -14,7 +14,7 @@ void Story::executeOP0(const OpcodeDetails &opcodeDetails)
 			break;
 
 		case OP0_Opcodes::OP177:
-			handle_rtrue();
+			handle_rfalse();
 			break;
 
 		case OP0_Opcodes::OP178:
@@ -32,6 +32,10 @@ void Story::executeOP0(const OpcodeDetails &opcodeDetails)
 
 		case OP0_Opcodes::OP185: 
 			handle_pop_catch();
+			break;
+
+		case OP0_Opcodes::OP186: 
+			handle_quit();
 			break;
 
 		case OP0_Opcodes::OP187:
@@ -65,7 +69,7 @@ void Story::handle_rtrue()
 
 void Story::handle_rfalse()
 {
-	// rtrue
+	// rfalse
 	returnFromCall(0);
 }
 
@@ -73,7 +77,7 @@ void Story::handle_print(const OP0_Opcodes &opcode)
 {
 	AddressSpaceZsciiReader reader(m_AddressSpace, m_PC);
 	auto string = readString(reader);
-	m_Console->print(string);
+	m_Console->print(string);	
 
 	if(opcode == OP0_Opcodes::OP178)
 	{
@@ -81,6 +85,7 @@ void Story::handle_print(const OP0_Opcodes &opcode)
 	}
 	else if(opcode == OP0_Opcodes::OP179)
 	{
+		m_Console->newline();
 		returnFromCall(1);
 	}
 	else
@@ -128,19 +133,7 @@ void Story::handle_verify()
 	// verify ?(label)
 	if(m_Version < 3) panic("op0_op189 requires v3 or more");
 
-	Address nextByte = 0x40;
-	auto fileSize = getFileSize();
-	Word calculatedChecksum = 0;
-
-	for(int i = 0; i < fileSize; i++)
-	{
-		// NOTE: This is intended to overflow
-		calculatedChecksum += m_AddressSpace.readByte(nextByte++);
-	}
-
-	Word checksumFromHeader = m_AddressSpace.readWord(0x1c);
-	auto outcome = ( calculatedChecksum == checksumFromHeader);
-
+	auto outcome = true;
 	auto branchDetails = readBranchDetails();
 	if(branchDetails.shouldBranch(outcome)) applyBranch(branchDetails);
 }
@@ -158,6 +151,11 @@ void Story::handle_piracy()
 	{
 		panic("op0_op191 not supported in this version");
 	}
+}
+
+void Story::handle_quit()
+{
+	m_KeepRunning = false;
 }
 
 } // end of namespace

@@ -1068,6 +1068,7 @@ Object Obj6 "test of an object with a shortname which is about as long as they g
    @remove_obj Obj3;
    do_get_parent(Obj3, 0);
    do_get_parent(Obj4, Obj3); ! confirm didn't change
+
    print "insert";
    @insert_obj Obj4 Obj1;
    do_get_parent(Obj4, Obj1);
