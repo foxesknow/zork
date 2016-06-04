@@ -29,7 +29,7 @@ void Story::run()
 			//std::cout << "Break" << std::endl;
 		}
 
-		std::cout << std::hex << m_PC << std::dec << std::endl;
+		//std::cout << std::hex << m_PC << std::dec << std::endl;
 
 		executeNextInstruction();
 		//std::cout << std::hex << m_PC << std::endl;
